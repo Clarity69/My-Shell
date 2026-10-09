@@ -38,6 +38,7 @@ Singleton {
     readonly property int windowWidth: 820
     readonly property int windowHeight: 600
     readonly property int sidebarWidth: 210
+    readonly property int barHeight: 30
     readonly property int padding: 16
     readonly property int gap: 10
     readonly property int radius: 8

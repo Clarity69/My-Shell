@@ -36,4 +36,15 @@ Singleton {
     // ── Lain-lain ────────────────────────────────────────────────────
     readonly property int nightLightDefault: 4500
     readonly property var lockCommand: ["sh", "-c", "pidof hyprlock || hyprlock"]
+
+    // ── Bar ──────────────────────────────────────────────────────────
+    // Bar Quickshell (pengganti Waybar). false = tidak ditampilkan saat start;
+    // tetap bisa dimunculkan lewat: quickshell -p ~/Documents/Shell ipc call bar toggle
+    readonly property bool barEnabled: true
+    // Layout awal kalau belum pernah dipilih (lihat bar/BarState.qml)
+    readonly property string barLayout: "omarchy"
+    // Layout terakhir yang dipilih disimpan di sini
+    readonly property string barStateFile: home + "/.cache/quickshell/bar-layout"
+    // Dijalankan tombol launcher di bar
+    readonly property string launcherCommand: "pkill rofi || rofi -show drun"
 }

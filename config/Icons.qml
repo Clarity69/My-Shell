@@ -12,6 +12,10 @@ Singleton {
     readonly property string search:        g(0xF0349)
     readonly property string refresh:       g(0xF0450)
     readonly property string check:         g(0xF012C)
+    readonly property string settings:      g(0xF0493)
+    readonly property string arch:          g(0xF08C7)
+    readonly property string cpu:           g(0xF0EE0)
+    readonly property string memory:        g(0xF035B)
 
     // Sesi
     readonly property string power:         g(0xF0425)

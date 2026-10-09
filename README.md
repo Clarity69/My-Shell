@@ -107,7 +107,7 @@ sudo pacman -S quickshell networkmanager bluez bluez-utils wireplumber brightnes
 ## Instalasi
 
 ```sh
-git clone <repo-ini> ~/Documents/Shell
+git https://github.com/Clarity69/My-Shell.git
 quickshell -p ~/Documents/Shell
 # terminal lain
 quickshell -p ~/Documents/Shell ipc call controlcenter toggle

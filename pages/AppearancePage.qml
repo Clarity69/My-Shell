@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import qs.config
 import qs.components
 import qs.services
+import qs.bar
 
 Page {
     onOpened: Hypr.refresh()
@@ -39,6 +40,40 @@ Page {
     }
 
     Hint { text: "Warna window mengikuti pywal secara live. Ganti wallpaper di halaman Wallpaper untuk membuat palet baru." }
+
+    // ── Bar ──────────────────────────────────────────────────────────
+    SectionLabel { Layout.topMargin: 6; text: "bar" }
+
+    SettingRow {
+        title: "Show bar"
+        sub: "Layout: " + BarState.current
+        Switch { checked: BarState.shown; onToggled: BarState.shown = !BarState.shown }
+    }
+
+    GridLayout {
+        Layout.fillWidth: true
+        columns: 2
+        columnSpacing: 4
+        rowSpacing: 2
+
+        Repeater {
+            model: BarState.names
+
+            ListRow {
+                required property string modelData
+                readonly property var l: BarState.layouts[modelData]
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                title: modelData
+                sub: l.style + "  ·  " + l.height + "px" + (l.margin.top > 0 ? "  ·  floating" : "")
+                trailing: BarState.current === modelData ? "active" : ""
+                active: BarState.current === modelData
+                onClicked: BarState.set(modelData)
+            }
+        }
+    }
+
+    Hint { text: "Layout dan modul diatur di bar/BarState.qml. Dari terminal/rofi: bar-layout." }
 
     // ── Hyprland ─────────────────────────────────────────────────────
     SectionLabel { Layout.topMargin: 6; text: "hyprland" }

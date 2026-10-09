@@ -1,0 +1,24 @@
+#!/bin/sh
+# Pilih layout bar Quickshell lewat rofi (pengganti waybar-rofi.sh).
+#   bar-layout          menu rofi
+#   bar-layout cozy     langsung ke layout tertentu
+#   bar-layout next     layout berikutnya
+#
+# Simpan di ~/.local/bin/bar-layout lalu: chmod +x ~/.local/bin/bar-layout
+
+CFG="$HOME/Documents/Shell"
+ipc() { quickshell -p "$CFG" ipc call bar "$@"; }
+
+if [ "$1" = next ]; then
+    ipc next >/dev/null
+    exit 0
+fi
+
+if [ -n "$1" ]; then
+    choice="$1"
+else
+    current=$(ipc current)
+    choice=$(ipc layouts | rofi -dmenu -i -p "Bar " -mesg "aktif: $current") || exit 0
+fi
+
+[ -n "$choice" ] && ipc layout "$choice" >/dev/null

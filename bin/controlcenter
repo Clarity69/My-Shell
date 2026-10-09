@@ -1,45 +1,49 @@
 #!/bin/sh
-# Buka/tutup Control Center dari Waybar, bind Hyprland, atau terminal.
-#   controlcenter              -> toggle
-#   controlcenter open sound   -> buka halaman tertentu
-#   controlcenter start        -> nyalakan Quickshell di latar (untuk exec-once), tanpa membuka window
-#   controlcenter restart      -> matikan semua instance, start ulang satu, lalu buka
+# Buka/tutup Quickshell Control Center berdasarkan kondisi nyata di Hyprland.
 #
-# Menjamin hanya SATU instance Quickshell untuk config ini.
+#   controlcenter              toggle
+#   controlcenter open sound   buka halaman tertentu
+#   controlcenter start        hanya jalankan Quickshell (untuk exec-once)
+#
+# Simpan di ~/.local/bin/controlcenter lalu: chmod +x ~/.local/bin/controlcenter
+# Log: ~/.cache/controlcenter.log
 
 CFG="$HOME/Documents/Shell"
+TITLE="Control Center"
+LOG="$HOME/.cache/controlcenter.log"
+
+exec 2>>"$LOG"
+echo "[$(date +%T)] controlcenter $*" >&2
+
 [ $# -eq 0 ] && set -- toggle
 
-running() { pgrep -f "quickshell -p $CFG\$" >/dev/null; }
+call()    { quickshell -p "$CFG" ipc call controlcenter "$@" >/dev/null; }
+running() { quickshell -p "$CFG" ipc show >/dev/null 2>&1; }   # cek tanpa mengubah apa pun
+active()  { hyprctl activewindow 2>/dev/null | grep -qx "[[:space:]]*title: $TITLE"; }
 
-start() {
-    setsid -f quickshell -p "$CFG" >/dev/null 2>&1
-    for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
-        sleep 0.2
-        quickshell -p "$CFG" ipc show >/dev/null 2>&1 && return 0
-    done
-    return 1
-}
-
-if [ "$1" = start ]; then
-    running || start
-    exit
-fi
-
-if [ "$1" = restart ]; then
-    pkill -f "quickshell -p $CFG\$"
-    sleep 0.5
-    start && quickshell -p "$CFG" ipc call controlcenter show
-    exit
-fi
-
+# 1. Pastikan Quickshell jalan (tanpa menampilkan window)
 if ! running; then
-    if ! start; then
-        notify-send "Control Center" "Quickshell gagal start. Jalankan manual: quickshell -p $CFG"
-        exit 1
-    fi
-    # Baru dinyalakan: window pasti tertutup, jadi "toggle" berarti "show"
-    [ "$1" = toggle ] && set -- show
+    echo "  quickshell belum jalan, start" >&2
+    setsid -f quickshell -p "$CFG" >/dev/null 2>&1 </dev/null
+    i=0
+    until running; do
+        i=$((i + 1))
+        [ $i -gt 20 ] && { notify-send "Control Center" "Quickshell gagal start, lihat $LOG"; exit 1; }
+        sleep 0.25
+    done
 fi
 
-quickshell -p "$CFG" ipc call controlcenter "$@"
+[ "$1" = start ] && exit 0
+
+# 2. Aksi
+if [ "$1" = toggle ]; then
+    if active; then
+        call hide
+    else
+        # tersembunyi / di workspace lain / status basi -> tampilkan di workspace ini
+        call hide; sleep 0.1; call show
+    fi
+else
+    active || { call hide; sleep 0.1; }
+    call "$@"
+fi

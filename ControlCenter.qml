@@ -28,7 +28,7 @@ FloatingWindow {
         { label: "Bluetooth",  section: "devices",  num: "02", keywords: "headset earbuds pair device" },
         { label: "Sound",      section: "devices",  num: "02", keywords: "audio volume speaker mic microphone output input" },
         { label: "Display",    section: "devices",  num: "02", keywords: "brightness night light screen resolution hyprsunset" },
-        { label: "Appearance", section: "look",     num: "03", keywords: "pywal theme colors gaps rounding blur animation notification dnd" },
+        { label: "Appearance", section: "look",     num: "03", keywords: "pywal theme colors gaps rounding blur animation notification dnd bar waybar layout" },
         { label: "Wallpaper",  section: "look",     num: "03", keywords: "awww swww background image pywal" },
         { label: "Power",      section: "system",   num: "04", keywords: "battery profile lock suspend logout reboot shutdown" },
         { label: "Keybinds",   section: "system",   num: "04", keywords: "shortcuts keys bind hotkey" }
