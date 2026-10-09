@@ -1,0 +1,37 @@
+// ── ~/.config/waybar/config.jsonc ────────────────────────────────
+// 1. Tambahkan "custom/control" ke modules-right (atau modules-left/center):
+//      "modules-right": ["pulseaudio", "network", "battery", "clock", "custom/control"],
+//
+// 2. Definisi modul:
+"custom/control": {
+    "format": "󰒓",
+    "tooltip-format": "Control Center",
+    "on-click": "~/.local/bin/controlcenter",
+    "on-click-right": "~/.local/bin/controlcenter open network",
+    "on-click-middle": "~/.local/bin/controlcenter open wallpaper"
+},
+
+// Opsional: modul bawaan Waybar ikut membuka halaman yang sesuai
+"network":    { "on-click": "~/.local/bin/controlcenter open network" },
+"pulseaudio": { "on-click": "~/.local/bin/controlcenter open sound" },
+"battery":    { "on-click": "~/.local/bin/controlcenter open power" },
+"bluetooth":  { "on-click": "~/.local/bin/controlcenter open bluetooth" }
+
+
+/* ── ~/.config/waybar/style.css ─────────────────────────────────
+   Warna dari pywal agar senada dengan Control Center.
+   Baris @import harus di paling atas file. */
+
+@import "../../.cache/wal/colors-waybar.css";
+
+#custom-control {
+    padding: 0 12px;
+    margin: 4px 4px;
+    border-radius: 6px;
+    color: @foreground;
+    font-size: 15px;
+}
+
+#custom-control:hover {
+    background: alpha(@foreground, 0.12);
+}

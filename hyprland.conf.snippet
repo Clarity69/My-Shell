@@ -1,0 +1,16 @@
+# ── Quickshell Control Center ─────────────────────────────────────
+# Tempel ke ~/.config/hypr/hyprland.conf
+
+exec-once = awww-daemon   # lewati kalau sudah dijalankan oleh setup wallpaper-mu
+exec-once = ~/.local/bin/controlcenter start
+bind = SUPER, A, exec, ~/.local/bin/controlcenter
+
+# Window melayang di tengah, bukan masuk tiling (sintaks Hyprland 0.48 – 0.52)
+windowrule = float, title:^(Control Center)$
+windowrule = center, title:^(Control Center)$
+# Ikut ke semua workspace, jadi toggle tidak "menutup" window yang tak terlihat
+windowrule = pin, title:^(Control Center)$
+
+# Nilai dari halaman Appearance (gaps, border, rounding, blur, animasi).
+# Letakkan di PALING AKHIR agar menimpa nilai di atasnya.
+source = ~/.config/hypr/quickshell.conf
