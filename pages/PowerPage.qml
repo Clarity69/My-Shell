@@ -95,7 +95,13 @@ Page {
     // ── Sesi ─────────────────────────────────────────────────────────
     SectionLabel { Layout.topMargin: 6; text: "session" }
 
-    PowerMenu { onActionTriggered: root.actionTriggered() }
+    PowerMenu {
+        id: menu
+        onActionTriggered: root.actionTriggered()
+    }
+
+    // Konfirmasi dibatalkan saat pindah halaman atau window ditutup (Esc)
+    onActiveChanged: if (!active) menu.cancel()
 
     InfoRow { key: "host";   value: SystemInfo.user + "@" + SystemInfo.host }
     InfoRow { key: "uptime"; value: SystemInfo.uptime }

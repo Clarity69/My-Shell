@@ -8,7 +8,7 @@
 # Simpan di ~/.local/bin/controlcenter lalu: chmod +x ~/.local/bin/controlcenter
 # Log: ~/.cache/controlcenter.log
 
-CFG="$HOME/Documents/Shell"
+CFG="${QS_CONFIG:-$HOME/.config/quickshell/shell}"
 TITLE="Control Center"
 LOG="$HOME/.cache/controlcenter.log"
 

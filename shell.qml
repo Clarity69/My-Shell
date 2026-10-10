@@ -1,7 +1,7 @@
-// Entry point. Jalankan:  quickshell -p ~/Documents/Shell
-// Toggle:                  quickshell -p ~/Documents/Shell ipc call controlcenter toggle
-// Bar on/off:              quickshell -p ~/Documents/Shell ipc call bar toggle
-// Ganti layout bar:        quickshell -p ~/Documents/Shell ipc call bar layout cozy
+// Entry point. Jalankan:  quickshell -p ~/.config/quickshell/shell
+// Toggle:                  quickshell -p ~/.config/quickshell/shell ipc call controlcenter toggle
+// Bar on/off:              quickshell -p ~/.config/quickshell/shell ipc call bar toggle
+// Ganti layout bar:        quickshell -p ~/.config/quickshell/shell ipc call bar layout cozy
 
 import QtQuick
 import Quickshell
@@ -40,7 +40,7 @@ ShellRoot {
         function show(): void   { controlCenter.visible = true }
         function hide(): void   { controlCenter.visible = false }
 
-        // quickshell -p ~/Documents/Shell ipc call controlcenter open network
+        // quickshell -p ~/.config/quickshell/shell ipc call controlcenter open network
         function open(page: string): void { controlCenter.openPage(page) }
     }
 }

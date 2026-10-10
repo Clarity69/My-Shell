@@ -25,8 +25,13 @@ Singleton {
     // di-restart backend (mis. waybar) tidak ikut terikat ke Quickshell.
     readonly property string wallpaperLog: home + "/.cache/wallset-backend.log"
 
-    // Frontend: picker rofi milikmu, dibuka lewat tombol "Open picker".
-    readonly property string wallpaperPicker: home + "/.local/bin/wallset"
+    // Frontend: picker milikmu, dibuka lewat tombol "Open picker" (Control Center ikut ditutup).
+    // Sama dengan bind SUPER+K. Picker rofi lama: home + "/.local/bin/wallset"
+    readonly property string wallpaperPicker: "quickshell -c hyprquickpaper"
+
+    // ── Clipboard (cliphist) ─────────────────────────────────────────
+    readonly property int clipLimit: 80                                  // entri yang ditampilkan
+    readonly property string clipCacheDir: home + "/.cache/quickshell/clipboard"   // thumbnail gambar
 
     // ── Hyprland ─────────────────────────────────────────────────────
     // Halaman Appearance menulis nilai ke file ini. Agar permanen, tambahkan
@@ -39,7 +44,7 @@ Singleton {
 
     // ── Bar ──────────────────────────────────────────────────────────
     // Bar Quickshell (pengganti Waybar). false = tidak ditampilkan saat start;
-    // tetap bisa dimunculkan lewat: quickshell -p ~/Documents/Shell ipc call bar toggle
+    // tetap bisa dimunculkan lewat: quickshell -p ~/.config/quickshell/shell ipc call bar toggle
     readonly property bool barEnabled: true
     // Layout awal kalau belum pernah dipilih (lihat bar/BarState.qml)
     readonly property string barLayout: "omarchy"

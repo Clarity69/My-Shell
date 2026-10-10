@@ -147,4 +147,24 @@ Page {
             onToggled: Notifications.toggle()
         }
     }
+
+    SettingRow {
+        visible: Notifications.available
+        icon: Icons.bell
+        title: Notifications.isSwaync
+               ? (Notifications.count > 0 ? Notifications.count + " notifikasi" : "Tidak ada notifikasi")
+               : "Notifikasi"
+        sub: Notifications.isSwaync ? "Isi notifikasi ada di panel swaync" : "via " + Notifications.daemon
+
+        TextButton {
+            visible: Notifications.isSwaync
+            text: Notifications.panelVisible ? "Close panel" : "Open panel"
+            onClicked: Notifications.openPanel()
+        }
+        TextButton {
+            text: "Clear all"
+            enabled: !Notifications.isSwaync || Notifications.count > 0
+            onClicked: Notifications.clearAll()
+        }
+    }
 }

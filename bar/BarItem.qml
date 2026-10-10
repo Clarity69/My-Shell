@@ -14,6 +14,7 @@ Rectangle {
 
     signal clicked()
     signal rightClicked()
+    signal middleClicked()
     signal scrolled(int delta)
 
     implicitWidth: row.implicitWidth + 16
@@ -49,9 +50,13 @@ Rectangle {
         id: mouse
         anchors.fill: parent
         hoverEnabled: true
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
         cursorShape: Qt.PointingHandCursor
-        onClicked: mouse => mouse.button === Qt.RightButton ? root.rightClicked() : root.clicked()
+        onClicked: mouse => {
+            if (mouse.button === Qt.RightButton) root.rightClicked();
+            else if (mouse.button === Qt.MiddleButton) root.middleClicked();
+            else root.clicked();
+        }
         onWheel: wheel => root.scrolled(wheel.angleDelta.y)
     }
 }

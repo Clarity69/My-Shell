@@ -29,7 +29,7 @@ Item {
         network: networkC, bluetooth: bluetoothC,
         volume: volumeC, mic: micC, brightness: brightnessC, battery: batteryC,
         cpu: cpuC, memory: memoryC, profile: profileC,
-        notification: notificationC, tray: trayC
+        notification: notificationC, tray: trayC, clipboard: clipboardC
     })
 
     // Modul yang datanya tidak tersedia disembunyikan (mis. baterai di PC desktop)
@@ -235,12 +235,21 @@ Item {
         id: notificationC
         BarItem {
             icon: Notifications.dnd ? Icons.bellOff : Icons.bell
+            label: Notifications.count > 0 ? String(Notifications.count) : ""
+            iconColor: Notifications.count > 0 && !Notifications.dnd ? Theme.rose : Theme.text
             dimmed: !Notifications.available
-            // Kiri = panel notifikasi swaync (kalau ada), kanan = Do Not Disturb
-            onClicked: Notifications.daemon === "swaync"
-                       ? Quickshell.execDetached(["swaync-client", "-t", "-sw"])
-                       : Notifications.toggle()
+            // Kiri = panel swaync (atau DND untuk mako/dunst), kanan = DND, tengah = clear all
+            onClicked: Notifications.isSwaync ? Notifications.openPanel() : Notifications.toggle()
             onRightClicked: Notifications.toggle()
+            onMiddleClicked: Notifications.clearAll()
+        }
+    }
+
+    Component {
+        id: clipboardC
+        BarItem {
+            icon: Icons.clipboard
+            onClicked: root.openPage("clipboard")
         }
     }
 

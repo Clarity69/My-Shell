@@ -9,6 +9,8 @@ import qs.services
 Page {
     id: root
 
+    signal closeRequested()
+
     pollInterval: 0
     onOpened: Wallpaper.refresh()
 
@@ -41,7 +43,7 @@ Page {
             visible: Wallpaper.hasPicker
             primary: true
             text: "Open picker"
-            onClicked: Wallpaper.openPicker()
+            onClicked: { Wallpaper.openPicker(); root.closeRequested(); }
         }
     }
 

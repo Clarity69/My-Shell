@@ -16,6 +16,8 @@ Singleton {
     readonly property string arch:          g(0xF08C7)
     readonly property string cpu:           g(0xF0EE0)
     readonly property string memory:        g(0xF035B)
+    readonly property string clipboard:     g(0xF0147)
+    readonly property string trash:         g(0xF01B4)
 
     // Sesi
     readonly property string power:         g(0xF0425)

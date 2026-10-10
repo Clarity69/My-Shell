@@ -6,7 +6,7 @@
 #
 # Simpan di ~/.local/bin/bar-layout lalu: chmod +x ~/.local/bin/bar-layout
 
-CFG="$HOME/Documents/Shell"
+CFG="${QS_CONFIG:-$HOME/.config/quickshell/shell}"
 ipc() { quickshell -p "$CFG" ipc call bar "$@"; }
 
 if [ "$1" = next ]; then

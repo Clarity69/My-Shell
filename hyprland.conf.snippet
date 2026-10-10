@@ -4,6 +4,11 @@
 exec-once = awww-daemon   # lewati kalau sudah dijalankan oleh setup wallpaper-mu
 exec-once = ~/.local/bin/controlcenter start
 bind = SUPER, A, exec, ~/.local/bin/controlcenter
+bind = SUPER, V, exec, ~/.local/bin/controlcenter open clipboard
+
+# Riwayat clipboard (halaman Clipboard)
+exec-once = wl-paste --type text  --watch cliphist store
+exec-once = wl-paste --type image --watch cliphist store
 
 # Window melayang di tengah, bukan masuk tiling (sintaks Hyprland 0.48 – 0.52)
 windowrule = float, title:^(Control Center)$

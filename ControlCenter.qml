@@ -30,6 +30,7 @@ FloatingWindow {
         { label: "Display",    section: "devices",  num: "02", keywords: "brightness night light screen resolution hyprsunset" },
         { label: "Appearance", section: "look",     num: "03", keywords: "pywal theme colors gaps rounding blur animation notification dnd bar waybar layout" },
         { label: "Wallpaper",  section: "look",     num: "03", keywords: "awww swww background image pywal" },
+        { label: "Clipboard",  section: "system",   num: "04", keywords: "cliphist copy paste history riwayat salin" },
         { label: "Power",      section: "system",   num: "04", keywords: "battery profile lock suspend logout reboot shutdown" },
         { label: "Keybinds",   section: "system",   num: "04", keywords: "shortcuts keys bind hotkey" }
     ]
@@ -118,9 +119,10 @@ FloatingWindow {
                 SoundPage      { active: root.isActive(3) }
                 DisplayPage    { active: root.isActive(4) }
                 AppearancePage { active: root.isActive(5) }
-                WallpaperPage  { active: root.isActive(6) }
-                PowerPage      { active: root.isActive(7); onActionTriggered: root.visible = false }
-                KeybindsPage   { active: root.isActive(8) }
+                WallpaperPage  { active: root.isActive(6); onCloseRequested: root.visible = false }
+                ClipboardPage  { active: root.isActive(7) }
+                PowerPage      { active: root.isActive(8); onActionTriggered: root.visible = false }
+                KeybindsPage   { active: root.isActive(9) }
             }
         }
     }
