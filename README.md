@@ -1,13 +1,32 @@
 <div align="center">
 
-# Control Center
+# My Shell
 
-**Window settings minimalis untuk Hyprland, dibangun dengan [Quickshell](https://quickshell.org).**
-Warna mengikuti pywal secara live · 9 halaman · tanpa daemon tambahan
+**A minimal settings window and status bar for Hyprland, built with [Quickshell](https://quickshell.org).**
 
-<img src="screenshots/dashboard.png" alt="Halaman Profile" width="820">
+Colors follow pywal live · 10 pages · 7 bar layouts · no extra daemons
+
+![Quickshell](https://img.shields.io/badge/Quickshell-0.2+-1e1e2e?style=flat-square)
+![QML](https://img.shields.io/badge/QML-Qt_6-41cd52?style=flat-square&logo=qt&logoColor=white)
+![Hyprland](https://img.shields.io/badge/Hyprland-Wayland-58e1ff?style=flat-square&logo=hyprland&logoColor=black)
+![Shell](https://img.shields.io/badge/Shell-POSIX_sh-4eaa25?style=flat-square&logo=gnubash&logoColor=white)
+![pywal](https://img.shields.io/badge/pywal-live_colors-e9a6ae?style=flat-square)
+![Arch Linux](https://img.shields.io/badge/Arch_Linux-tested-1793d1?style=flat-square&logo=archlinux&logoColor=white)
+
+<img src="screenshots/dashboard.png" alt="Profile page" width="820">
 
 </div>
+
+---
+
+## What is this
+
+My personal desktop shell for Hyprland. It started as a small control center and grew into two things that live in the same Quickshell config:
+
+- **Control Center**, a regular app window (not a panel) with a sidebar and pages for network, sound, display, wallpaper, clipboard and so on.
+- **Bar**, a status bar that replaces Waybar. It ships with seven layouts ported from my old Waybar setup, and you can switch between them without restarting anything.
+
+Everything reads its colors from pywal, so when the wallpaper changes, the whole shell changes with it.
 
 ---
 
@@ -15,201 +34,281 @@ Warna mengikuti pywal secara live · 9 halaman · tanpa daemon tambahan
 
 <table>
   <tr>
-    <td width="50%"><img src="screenshots/Network.png" alt="Network"><br><sub><b>Network</b> — Ethernet, Wi-Fi, scan & connect</sub></td>
-    <td width="50%"><img src="screenshots/bluetooth.png" alt="Bluetooth"><br><sub><b>Bluetooth</b> — perangkat ter-pair</sub></td>
+    <td width="50%"><img src="screenshots/Network.png" alt="Network"><br><sub><b>Network</b> — Ethernet, Wi-Fi, scan and connect</sub></td>
+    <td width="50%"><img src="screenshots/bluetooth.png" alt="Bluetooth"><br><sub><b>Bluetooth</b> — paired devices</sub></td>
   </tr>
   <tr>
-    <td><img src="screenshots/sound.png" alt="Sound"><br><sub><b>Sound</b> — volume, mic, output/input</sub></td>
-    <td><img src="screenshots/display.png" alt="Display"><br><sub><b>Display</b> — kecerahan & night light</sub></td>
+    <td><img src="screenshots/sound.png" alt="Sound"><br><sub><b>Sound</b> — volume, mic, output and input</sub></td>
+    <td><img src="screenshots/display.png" alt="Display"><br><sub><b>Display</b> — brightness and night light</sub></td>
   </tr>
   <tr>
-    <td><img src="screenshots/appearance.png" alt="Appearance"><br><sub><b>Appearance</b> — palet pywal & opsi Hyprland</sub></td>
-    <td><img src="screenshots/wallpaper.png" alt="Wallpaper"><br><sub><b>Wallpaper</b> — grid thumbnail</sub></td>
+    <td><img src="screenshots/appearance.png" alt="Appearance"><br><sub><b>Appearance</b> — pywal palette, bar layouts, Hyprland options</sub></td>
+    <td><img src="screenshots/wallpaper.png" alt="Wallpaper"><br><sub><b>Wallpaper</b> — thumbnail grid</sub></td>
   </tr>
   <tr>
-    <td><img src="screenshots/power.png" alt="Power"><br><sub><b>Power</b> — baterai, mode daya, sesi</sub></td>
-    <td><img src="screenshots/keybinds.png" alt="Keybinds"><br><sub><b>Keybinds</b> — semua bind dengan filter</sub></td>
+    <td><img src="screenshots/clipboard.png" alt="Clipboard"><br><sub><b>Clipboard</b> — text and image history</sub></td>
+    <td><img src="screenshots/power.png" alt="Power"><br><sub><b>Power</b> — battery, power profile, session</sub></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/keybinds.png" alt="Keybinds"><br><sub><b>Keybinds</b> — every active bind, filterable</sub></td>
+    <td><img src="screenshots/calendar.png" alt="Calendar"><br><sub><b>Bar calendar</b> — hover or right-click the clock</sub></td>
   </tr>
 </table>
 
 <details>
-<summary><b>pywal live</b> — warna berubah mengikuti wallpaper</summary>
+<summary><b>Bar layouts</b></summary>
 <br>
-<p align="center">
-  <img src="screenshots/pywal-1.png" alt="Palet pywal 1" width="49%">
-  <img src="screenshots/pywal-2.png" alt="Palet pywal 2" width="49%">
-</p>
+<tr>
+  <p>Omarchy style bar
+  <td><img src="screenshots/bar-omarchy.png" alt="omarchy layout"><br></td>
+</tr>
+<tr>
+  <p>Cozy style bar
+ <img src="screenshots/bar-cozy.png" alt="cozy layout"><br>
+</tr>
+<tr>
+  <p>Everforest style bar
+<img src="screenshots/bar-everforest.png" alt="everforest layout"><br>
+</tr>
+
 </details>
 
 ---
 
-## Fitur
+## Features
 
-| Halaman | Isi | Backend |
+### Control Center
+
+| Page | What it does | Backend |
 |---|---|---|
-| **Profile** | hostname, telemetri live (suhu, CPU, RAM, jaringan), quick settings, info sistem | `/proc`, `/sys` |
-| **Network** | status Ethernet (IP, kecepatan), Wi-Fi on/off, scan, connect & disconnect | `nmcli` |
-| **Bluetooth** | power, perangkat ter-pair, connect & disconnect | `bluetoothctl` |
-| **Sound** | volume & mic, pilih output/input default | `wpctl` |
-| **Display** | kecerahan, night light + suhu warna, info monitor | `brightnessctl`, `hyprsunset` |
-| **Appearance** | palet pywal, gaps/border/rounding/blur/animasi, Do Not Disturb | `hyprctl`, swaync/mako/dunst |
-| **Wallpaper** | grid thumbnail; klik untuk memanggil skrip wallpaper milikmu | `wallset-backend` |
-| **Power** | baterai, mode daya, lock/suspend/logout/restart/shutdown | `upower`, `powerprofilesctl` |
-| **Keybinds** | semua bind aktif dengan filter | `hyprctl binds` |
+| **Profile** | hostname, live telemetry (temp, CPU, RAM, network), quick toggles, system info | `/proc`, `/sys` |
+| **Network** | Ethernet status (IP, link speed), Wi-Fi on/off, scan, connect and disconnect | `nmcli` |
+| **Bluetooth** | power, paired devices, connect and disconnect | `bluetoothctl` |
+| **Sound** | volume and mic, pick default output and input | `wpctl` |
+| **Display** | brightness, night light with color temperature, monitor info | `brightnessctl`, `hyprsunset` |
+| **Appearance** | pywal palette, bar layout picker, gaps / border / rounding / blur / animations, notifications | `hyprctl`, `swaync` |
+| **Wallpaper** | thumbnail grid that calls your own wallpaper script, plus a button for your picker | `wallset-backend`, `hyprquickpaper` |
+| **Clipboard** | text and image history with thumbnails, filter, copy again, delete | `cliphist`, `wl-clipboard` |
+| **Power** | battery, power profile, lock / suspend / log out / restart / shut down | `upower`, `powerprofilesctl` |
+| **Keybinds** | every active Hyprland bind, filterable | `hyprctl binds` |
 
-**Shortcut di dalam window**
+Log out, Restart and Shut down need a second click within 5 seconds, so a stray click won't take the machine down.
 
-| Tombol | Aksi |
+### Bar
+
+- One bar per monitor, with workspaces (numbers, kanji or roman numerals), active app, clock, tray, network, bluetooth, volume, mic, brightness, battery, CPU, memory, power profile, notifications and clipboard.
+- Seven layouts: `omarchy`, `minimal`, `full`, `cozy`, `everforest`, `border-only`, `hyprnova`. Three styles: a solid bar, separate "islands", or bordered modules only.
+- Every indicator opens the matching Control Center page on click. Volume, mic and brightness react to scroll.
+- The clock shows a small calendar on hover or right-click.
+- The notification bell shows the swaync count live. Left click opens the swaync panel, right click toggles Do Not Disturb, middle click clears everything.
+- The last picked layout is remembered across logins.
+
+### Shortcuts inside the window
+
+| Key | Action |
 |---|---|
-| `Ctrl` + `1`…`9` | pindah halaman |
-| `Ctrl` + `F` | cari pengaturan |
-| `Esc` | hapus pencarian / tutup window |
+| `Ctrl` + `1`…`9` | jump to a page |
+| `Ctrl` + `F` | search settings |
+| `Esc` | clear search, or close the window |
 
 ---
 
-## Struktur
+## Layout
 
 ```
-Shell/
-├── shell.qml               # entry point: ShellRoot + IpcHandler
-├── ControlCenter.qml       # FloatingWindow: daftar halaman, sidebar, StackLayout
+shell/
+├── shell.qml               entry point: ShellRoot, Bar, IPC handlers
+├── ControlCenter.qml       the window: page list, sidebar, StackLayout
 ├── config/
-│   ├── Config.qml          # preferensi: folder wallpaper, skrip & picker, path
-│   ├── Theme.qml           # warna dari pywal, ukuran, font
-│   └── Icons.qml           # glyph Nerd Font
-├── components/             # UI murni, tanpa perintah shell
-├── pages/                  # satu file per halaman
-├── services/               # satu singleton per sumber data / CLI
-├── bin/controlcenter       # launcher: toggle/open/start/restart, satu instance
-├── screenshots/            # gambar untuk README ini
+│   ├── Config.qml          your paths and commands (wallpaper, picker, clipboard, bar)
+│   ├── Theme.qml           pywal colors, sizes, fonts
+│   └── Icons.qml           Nerd Font glyphs
+├── components/             pure UI, never runs commands
+├── pages/                  one file per Control Center page
+├── services/               one singleton per data source or CLI tool
+├── bar/
+│   ├── BarState.qml        layout definitions and the active layout
+│   ├── Module.qml          every bar module and its click actions
+│   └── ...                 Workspaces, Tray, ClockItem, CalendarPopup
+├── bin/
+│   ├── controlcenter       launcher: toggle / open / start
+│   └── bar-layout          rofi picker for bar layouts
+├── screenshots/
 ├── hyprland.conf.snippet
-└── waybar.snippet
+└── waybar.snippet          only if you keep Waybar instead of the built-in bar
 ```
 
-`components/` tidak pernah menjalankan perintah dan `services/` tidak pernah menggambar UI.
-Polling hanya berjalan untuk halaman yang sedang terbuka.
+The rule I try to keep: `components/` never runs a shell command and `services/` never draws anything. Polling only runs for the page that is actually open.
 
 ---
 
-## Dependensi
+## Dependencies
 
-**Wajib:** `quickshell` (≥ 0.2), `networkmanager`, `bluez` + `bluez-utils`, `wireplumber`, Nerd Font (default `JetBrainsMono Nerd Font`).
+**Required:** `quickshell` (0.2 or newer), `networkmanager`, `bluez` and `bluez-utils`, `wireplumber`, a Nerd Font (defaults to `JetBrainsMono Nerd Font`).
 
-**Opsional** (fitur terkait disembunyikan atau dinonaktifkan kalau tidak ada): `brightnessctl`, `hyprsunset`, `awww`, `python-pywal`, `upower`, `power-profiles-daemon`, `swaync` / `mako` / `dunst`, `hyprlock`.
+**Optional.** Anything missing just hides or disables its feature: `brightnessctl`, `hyprsunset`, `awww`, `python-pywal`, `cliphist`, `wl-clipboard`, `upower`, `power-profiles-daemon`, `swaync` (or `mako` / `dunst` for DND only), `hyprlock`, `rofi`, `noto-fonts-cjk` for the kanji workspaces.
 
 ```sh
-sudo pacman -S quickshell networkmanager bluez bluez-utils wireplumber brightnessctl \
-               hyprsunset upower power-profiles-daemon ttf-jetbrains-mono-nerd
+sudo pacman -S --needed quickshell networkmanager bluez bluez-utils wireplumber \
+    brightnessctl hyprsunset upower power-profiles-daemon cliphist wl-clipboard \
+    ttf-jetbrains-mono-nerd noto-fonts-cjk
 ```
 
 ---
 
-## Instalasi
+## Install
 
 ```sh
-git https://github.com/Clarity69/My-Shell.git
-quickshell -p ~/Documents/Shell
-# terminal lain
-quickshell -p ~/Documents/Shell ipc call controlcenter toggle
+git clone https://github.com/Clarity69/My-Shell.git ~/.config/quickshell/shell
+
+ln -sf ~/.config/quickshell/shell/bin/controlcenter ~/.local/bin/controlcenter
+ln -sf ~/.config/quickshell/shell/bin/bar-layout    ~/.local/bin/bar-layout
+chmod +x ~/.config/quickshell/shell/bin/*
+
+controlcenter start      # bar shows up, the window stays hidden
+controlcenter            # open the window
 ```
 
-### Launcher
-
-`bin/controlcenter` membuka/menutup window dan menyalakan Quickshell kalau belum jalan,
-serta menjamin hanya ada satu instance:
+While hacking on it, run it in the foreground so errors show up in the terminal:
 
 ```sh
-install -m 755 ~/Documents/Shell/bin/controlcenter ~/.local/bin/controlcenter
-
-controlcenter              # toggle
-controlcenter open sound   # buka halaman tertentu
-controlcenter start        # nyalakan di latar (untuk exec-once)
-controlcenter restart      # matikan semua instance, start ulang satu
+qs -c shell kill; qs -c shell
 ```
+
+Then open `config/Config.qml` and point the paths at your own setup. The defaults are mine.
 
 ### Hyprland
 
-Tambahkan ke `~/.config/hypr/hyprland.conf` (lengkapnya di `hyprland.conf.snippet`):
+Add this to `~/.config/hypr/hyprland.conf` and remove `exec-once = waybar` if you're switching over. The full version is in `hyprland.conf.snippet`.
 
 ```ini
 exec-once = ~/.local/bin/controlcenter start
-bind = SUPER, A, exec, ~/.local/bin/controlcenter
+exec-once = wl-paste --type text  --watch cliphist store
+exec-once = wl-paste --type image --watch cliphist store
 
 windowrule = float, title:^(Control Center)$
 windowrule = center, title:^(Control Center)$
 windowrule = pin, title:^(Control Center)$
 
-# paling akhir: menyimpan pengaturan dari halaman Appearance
+# keep this last, it stores what the Appearance page changes
 source = ~/.config/hypr/quickshell.conf
 ```
 
-### Waybar
+Create the overrides file once so Hyprland doesn't complain before you've touched anything:
 
-```jsonc
-"custom/control": {
-    "format": "󰒓",
-    "tooltip-format": "Control Center",
-    "on-click": "~/.local/bin/controlcenter",
-    "on-click-right": "~/.local/bin/controlcenter open network"
-}
+```sh
+touch ~/.config/hypr/quickshell.conf
 ```
 
-Gaya CSS dan contoh untuk modul bawaan ada di `waybar.snippet`.
+### Keybinds I use
+
+```ini
+bind = $mainMod, A, exec, ~/.local/bin/controlcenter                  # toggle the window
+bind = $mainMod, V, exec, ~/.local/bin/controlcenter open clipboard   # clipboard history
+bind = $mainMod, K, exec, quickshell -c hyprquickpaper                # wallpaper picker
+bind = $mainMod ALT, B, exec, ~/.local/bin/bar-layout                 # pick a bar layout
+bind = $mainMod ALT, N, exec, ~/.local/bin/bar-layout next            # next bar layout
+```
+
+---
+
+## Launcher
+
+`bin/controlcenter` is what Hyprland and the bar call. It starts Quickshell if it isn't running, and it asks Hyprland what's actually on screen before toggling, so one press always does the expected thing even if the window is on another workspace.
+
+```sh
+controlcenter              # toggle
+controlcenter open sound   # open a specific page
+controlcenter start        # start in the background (for exec-once)
+```
+
+Every call is logged to `~/.cache/controlcenter.log`.
+
+---
+
+## Bar layouts
+
+Switch from the Appearance page, from rofi, or from a terminal:
+
+```sh
+bar-layout            # rofi menu
+bar-layout cozy       # jump straight to one
+bar-layout next       # cycle
+```
+
+Layouts live in `bar/BarState.qml`. Adding one is a single entry:
+
+```qml
+"my-layout": {
+    style: "islands", height: 30, radius: 10, margin: { top: 6, left: 10, right: 10 },
+    left:   ["workspaces:kanji", "window:app"],
+    center: ["datetime"],
+    right:  ["tray", "notification", "volume", "battery", "control"]
+},
+```
+
+Available modules: `workspaces` (`:kanji`, `:roman`), `window` (`:app` for the app name only), `clock`, `date`, `datetime`, `launcher`, `network`, `bluetooth`, `volume`, `mic`, `brightness`, `battery`, `cpu`, `memory`, `profile`, `notification`, `clipboard`, `tray`, `power`, `control`.
+
+Click actions for each module are in `bar/Module.qml`. Every module has `onClicked`, `onRightClicked`, `onMiddleClicked` and `onScrolled`, so changing what a click does is a one-line edit.
 
 ---
 
 ## IPC
 
 ```sh
-quickshell -p ~/Documents/Shell ipc call controlcenter toggle
-quickshell -p ~/Documents/Shell ipc call controlcenter show
-quickshell -p ~/Documents/Shell ipc call controlcenter hide
-quickshell -p ~/Documents/Shell ipc call controlcenter open <halaman>
+qs -c shell ipc call controlcenter toggle
+qs -c shell ipc call controlcenter open <page>
+qs -c shell ipc call bar toggle
+qs -c shell ipc call bar layout <name>
+qs -c shell ipc call bar next
 ```
 
-`<halaman>`: `profile` `network` `bluetooth` `sound` `display` `appearance` `wallpaper` `power` `keybinds`
+Pages: `profile` `network` `bluetooth` `sound` `display` `appearance` `wallpaper` `clipboard` `power` `keybinds`
 
 ---
 
-## Konfigurasi
+## Config
 
-Semua path dan perintah eksternal ada di `config/Config.qml`:
+Paths and external commands are all in `config/Config.qml`:
 
-| Opsi | Default | Keterangan |
+| Option | Default | Notes |
 |---|---|---|
-| `walColors` | `~/.cache/wal/colors.json` | dipantau Theme; warna ikut berubah saat pywal menulis ulang |
-| `wallpaperDir` | `~/Pictures/Wallpaper` | folder yang ditampilkan di halaman Wallpaper |
-| `wallpaperSet` | `~/.local/bin/wallset-backend "$1"` | dipanggil saat thumbnail diklik (`$1` = path gambar) |
-| `wallpaperPicker` | `~/.local/bin/wallset` | dibuka lewat tombol *Open picker* |
-| `wallpaperLog` | `~/.cache/wallset-backend.log` | output backend |
-| `hyprOverrides` | `~/.config/hypr/quickshell.conf` | ditulis oleh halaman Appearance |
-| `nightLightDefault` | `4500` | suhu night light awal (K) |
+| `walColors` | `~/.cache/wal/colors.json` | watched by Theme, colors update when pywal rewrites it |
+| `wallpaperDir` | `~/Pictures/Wallpaper` | folder shown in the Wallpaper page |
+| `wallpaperSet` | `~/.local/bin/wallset-backend "$1"` | runs when a thumbnail is clicked, `$1` is the image path |
+| `wallpaperPicker` | `quickshell -c hyprquickpaper` | opened by the *Open picker* button |
+| `wallpaperLog` | `~/.cache/wallset-backend.log` | backend output goes here |
+| `clipLimit` | `80` | how many clipboard entries to show |
+| `hyprOverrides` | `~/.config/hypr/quickshell.conf` | written by the Appearance page |
+| `nightLightDefault` | `4500` | starting night light temperature in K |
+| `barEnabled` | `true` | show the bar on start |
+| `barLayout` | `omarchy` | layout used until you pick one |
+| `calendarOnHover` | `true` | set to `false` to open the calendar on right-click only |
+| `launcherCommand` | `rofi -show drun` | what the launcher module runs |
 
-Warna, ukuran window, dan font ada di `config/Theme.qml`.
+Colors, window size and fonts are in `config/Theme.qml`.
 
 ---
 
-## Membuat screenshot
+## Taking screenshots
 
-Gambar di README ini dibaca dari folder `screenshots/`. Untuk membuatnya, buka halaman yang diinginkan lalu tangkap window yang aktif:
+The images above are read from `screenshots/`. Open a page, focus the window, then:
 
 ```sh
-mkdir -p ~/Documents/Shell/screenshots
-cd ~/Documents/Shell/screenshots
-
-# tangkap window Control Center (fokuskan dulu window-nya)
-sleep 2 && grim -g "$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')" profile.png
+cd ~/.config/quickshell/shell/screenshots
+controlcenter open network
+sleep 2 && grim -g "$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')" Network.png
 ```
 
-Atau pakai `hyprshot -m window -o . -f profile.png`.
-
-Nama file yang dipakai README: `profile.png`, `network.png`, `bluetooth.png`, `sound.png`, `display.png`, `appearance.png`, `wallpaper.png`, `power.png`, `keybinds.png`, `pywal-1.png`, `pywal-2.png`.
+`hyprshot -m window -o . -f Network.png` works too.
 
 ---
 
-## Catatan
+## Notes
 
-- **mako DND** butuh mode di config mako: `[mode=do-not-disturb]` + `invisible=1`.
-- **Wi-Fi tersimpan** dikenali dari SSID profil NetworkManager; jaringan baru yang terkunci meminta password di baris jaringannya.
-- **Restart / Shut down** langsung dieksekusi tanpa konfirmasi.
-- Pengaturan di halaman Appearance diterapkan lewat `hyprctl keyword` dan baru permanen kalau `quickshell.conf` di-`source` dari `hyprland.conf`.
+- Your wallpaper script should not restart Waybar anymore if you use the built-in bar. The bar picks up pywal colors on its own.
+- swaync doesn't expose notification contents through `swaync-client`, so the shell shows the count and controls, and the contents stay in the swaync panel.
+- mako needs a DND mode in its config: `[mode=do-not-disturb]` with `invisible=1`.
+- Saved Wi-Fi networks are matched by the SSID stored in NetworkManager. New locked networks ask for a password right in the list.
+- The Appearance page applies changes with `hyprctl keyword`. They only stick across logins if `quickshell.conf` is sourced at the end of `hyprland.conf`.
+- Hyprland 0.55 added Lua configs. `hyprland.conf` still works, but if you move to `hyprland.lua` the Appearance page will need `hyprctl eval` instead of `keyword`.

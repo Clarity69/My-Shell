@@ -52,4 +52,5 @@ Singleton {
     readonly property string barStateFile: home + "/.cache/quickshell/bar-layout"
     // Dijalankan tombol launcher di bar
     readonly property string launcherCommand: "pkill rofi || rofi -show drun"
+    readonly property bool calendarOnHover: true
 }

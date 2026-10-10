@@ -90,17 +90,32 @@ Item {
         }
     }
 
+    // Jam: klik kanan / hover = kalender, klik kiri = halaman Profile
     Component {
         id: clockC
-        BarText { text: Qt.formatDateTime(BarState.clock.date, "hh:mm") }
+        ClockItem {
+            barWindow: root.window
+            format: "hh:mm"
+            labelColor: Theme.text
+            onClicked: root.openPage("profile")
+        }
     }
     Component {
         id: dateC
-        BarText { text: Qt.formatDateTime(BarState.clock.date, "ddd dd MMM"); color: Theme.subtext }
+        ClockItem {
+            barWindow: root.window
+            format: "ddd dd MMM"
+            onClicked: root.openPage("profile")
+        }
     }
     Component {
         id: datetimeC
-        BarText { text: Qt.formatDateTime(BarState.clock.date, "ddd dd MMM   hh:mm") }
+        ClockItem {
+            barWindow: root.window
+            format: "ddd dd MMM   hh:mm"
+            labelColor: Theme.text
+            onClicked: root.openPage("profile")
+        }
     }
 
     Component {

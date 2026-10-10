@@ -10,6 +10,7 @@ Rectangle {
     property string icon: ""
     property string label: ""
     property color iconColor: Theme.text
+    property color labelColor: Theme.subtext
     property bool dimmed: false
 
     signal clicked()
@@ -30,6 +31,7 @@ Rectangle {
         spacing: 6
 
         Text {
+            visible: root.icon !== ""
             text: root.icon
             color: root.iconColor
             font.family: Theme.font
@@ -39,7 +41,7 @@ Rectangle {
             visible: root.label !== ""
             Layout.maximumWidth: 140
             text: root.label
-            color: Theme.subtext
+            color: root.labelColor
             font.family: Theme.font
             font.pixelSize: Theme.fontSize - 2
             elide: Text.ElideRight
