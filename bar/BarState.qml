@@ -24,9 +24,9 @@ Singleton {
     readonly property var layouts: ({
         "omarchy": {
             style: "solid", height: 30, radius: 0, margin: { top: 5, left: 10, right: 10 },
-            left:   ["launcher", "workspaces", "window:app"],
+            left:   ["tray", "workspaces", "window:app"],
             center: ["clock"],
-            right:  ["network", "bluetooth", "volume", "cpu", "memory", "battery", "tray", "power", "control"]
+            right: ["network", "bluetooth", "volume", "cpu", "memory", "battery", "notification", "power", "control"]
         },
         "minimal": {
             style: "solid", height: 30, radius: 0, margin: { top: 0, left: 0, right: 0 },

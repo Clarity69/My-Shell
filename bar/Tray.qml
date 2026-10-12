@@ -13,7 +13,7 @@ RowLayout {
 
     required property var window     // PanelWindow tempat menu ditampilkan
 
-    spacing: 8
+    spacing: 10
 
     Repeater {
         model: SystemTray.items

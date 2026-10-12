@@ -278,9 +278,19 @@ Item {
 
     Component {
         id: trayC
-        Tray { window: root.window }
-    }
+        // Bungkus dengan padding supaya tray tidak menempel ke modul sebelah
+        Item {
+            visible: tray.visible
+            implicitWidth: tray.implicitWidth + 16 // 8px kiri + 8px kanan
+            implicitHeight: tray.implicitHeight
 
+            Tray {
+                id: tray
+                anchors.centerIn: parent
+                window: root.window
+            }
+        }
+    }
     Component {
         id: unknownC
         BarText { text: "?" + root.spec; color: Theme.danger }
