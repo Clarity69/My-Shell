@@ -1,0 +1,62 @@
+#!/bin/sh
+# Ambil kalender kontribusi GitHub setahun terakhir, tulis ke file cache.
+#   github-contrib [username] [cache-file]
+#
+# 1. Pakai `gh` (GraphQL, akurat termasuk repo private kalau diizinkan di profil)
+#    kalau sudah `gh auth login`. Username kosong = akun gh yang sedang login.
+# 2. Kalau gh tidak ada / belum login: API publik github-contributions-api (butuh curl + jq).
+#
+# Format cache (satu baris per entri):
+#   U|username
+#   T|total
+#   D|YYYY-MM-DD|jumlah|level(0-4)
+
+USER_NAME="$1"
+CACHE="${2:-$HOME/.cache/quickshell/github-contrib.txt}"
+TMP="$CACHE.tmp"
+mkdir -p "$(dirname "$CACHE")"
+
+fetch_gh() {
+    [ -z "$USER_NAME" ] && USER_NAME=$(gh api user --jq .login) || true
+    [ -z "$USER_NAME" ] && return 1
+    echo "U|$USER_NAME"
+    gh api graphql -F u="$USER_NAME" -f query='
+      query($u: String!) {
+        user(login: $u) {
+          contributionsCollection {
+            contributionCalendar {
+              totalContributions
+              weeks { contributionDays { date contributionCount contributionLevel } }
+            }
+          }
+        }
+      }' --jq '
+      .data.user.contributionsCollection.contributionCalendar
+      | "T|\(.totalContributions)",
+        (.weeks[].contributionDays[]
+         | "D|\(.date)|\(.contributionCount)|\({"NONE":0,"FIRST_QUARTILE":1,"SECOND_QUARTILE":2,"THIRD_QUARTILE":3,"FOURTH_QUARTILE":4}[.contributionLevel] // 0)")'
+}
+
+fetch_public() {
+    [ -z "$USER_NAME" ] && return 1
+    command -v jq >/dev/null || return 1
+    echo "U|$USER_NAME"
+    curl -fsSL --max-time 20 "https://github-contributions-api.jogruber.de/v4/$USER_NAME?y=last" \
+      | jq -r '"T|\(.total.lastYear // ([.contributions[].count] | add))",
+               (.contributions[] | "D|\(.date)|\(.count)|\(.level)")'
+}
+
+if command -v gh >/dev/null && gh auth status >/dev/null 2>&1; then
+    fetch_gh > "$TMP" 2>/dev/null || fetch_public > "$TMP" 2>/dev/null
+else
+    fetch_public > "$TMP" 2>/dev/null
+fi
+
+# Hanya ganti cache kalau hasilnya berisi data (offline = cache lama tetap dipakai)
+if grep -q '^D|' "$TMP" 2>/dev/null; then
+    mv "$TMP" "$CACHE"
+    exit 0
+fi
+rm -f "$TMP"
+echo "github-contrib: gagal mengambil data (cek gh auth login, atau isi githubUser + pasang jq)" >&2
+exit 1

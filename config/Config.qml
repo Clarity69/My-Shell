@@ -40,6 +40,20 @@ Singleton {
     readonly property int notifWidth: 360
     readonly property string notifStateFile: home + "/.cache/quickshell/notif-dnd"
 
+    // ── Widget GitHub (desktop) ──────────────────────────────────────
+    readonly property bool githubWidget: true
+    readonly property string githubUser: ""        // kosong = akun yang login di `gh`
+    readonly property string githubPosition: "bottom-left"   // top-left | top-right | bottom-left | bottom-right
+    readonly property string githubScreen: ""      // nama monitor, mis. "VGA-1"; kosong = monitor pertama
+    readonly property int githubMargin: 24
+    readonly property int githubCellSize: 11
+    readonly property bool githubCardBackground: true
+    readonly property int githubRefreshMinutes: 30
+    readonly property string githubScript: home + "/.config/quickshell/shell/bin/github-contrib"
+    readonly property string githubCache: home + "/.cache/quickshell/github-contrib.txt"
+    // Pengaturan dari halaman Widgets disimpan di sini (menimpa nilai default di atas)
+    readonly property string widgetStateFile: home + "/.cache/quickshell/widgets.json"
+
     // ── Hyprland ─────────────────────────────────────────────────────
     // Halaman Appearance menulis nilai ke file ini. Agar permanen, tambahkan
     // `source = ~/.config/hypr/quickshell.conf` di AKHIR hyprland.conf.

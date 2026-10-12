@@ -11,7 +11,7 @@ import qs.config
 RowLayout {
     id: root
 
-    required property var window     // PanelWindow tempat menu ditampilkan
+    required property var window // PanelWindow tempat menu ditampilkan
 
     spacing: 10
 

@@ -24,23 +24,23 @@ Item {
     readonly property bool bordered: layout.style === "border"
 
     readonly property var comps: ({
-        workspaces: workspacesC, window: windowC,
-        clock: clockC, date: dateC, datetime: datetimeC,
-        launcher: launcherC, power: powerC, control: controlC,
-        network: networkC, bluetooth: bluetoothC,
-        volume: volumeC, mic: micC, brightness: brightnessC, battery: batteryC,
-        cpu: cpuC, memory: memoryC, profile: profileC,
-        notification: notificationC, tray: trayC, clipboard: clipboardC, overview: overviewC
-    })
+                                      workspaces: workspacesC, window: windowC,
+                                      clock: clockC, date: dateC, datetime: datetimeC,
+                                      launcher: launcherC, power: powerC, control: controlC,
+                                      network: networkC, bluetooth: bluetoothC,
+                                      volume: volumeC, mic: micC, brightness: brightnessC, battery: batteryC,
+                                      cpu: cpuC, memory: memoryC, profile: profileC,
+                                      notification: notificationC, tray: trayC, clipboard: clipboardC, overview: overviewC
+                                  })
 
     // Modul yang datanya tidak tersedia disembunyikan (mis. baterai di PC desktop)
     visible: ({
-        bluetooth: Bluetooth.powered,
-        mic: Audio.hasMic,
-        brightness: Brightness.available,
-        battery: Battery.available,
-        profile: PowerProfile.available
-    })[kind] ?? true
+                  bluetooth: Bluetooth.powered,
+                  mic: Audio.hasMic,
+                  brightness: Brightness.available,
+                  battery: Battery.available,
+                  profile: PowerProfile.available
+              })[kind] ?? true
     implicitWidth: frame.implicitWidth
     implicitHeight: frame.implicitHeight
 
@@ -113,7 +113,7 @@ Item {
         id: datetimeC
         ClockItem {
             barWindow: root.window
-            format: "ddd dd MMM   hh:mm"
+            format: "ddd dd MMM hh:mm"
             labelColor: Theme.text
             onClicked: root.openPage("profile")
         }
@@ -149,9 +149,9 @@ Item {
         id: networkC
         BarItem {
             icon: Network.ethConnected ? Icons.ethernet
-                : Network.ssid !== "" ? Icons.wifi : Icons.wifiOff
+                                       : Network.ssid !== "" ? Icons.wifi : Icons.wifiOff
             label: Network.ethConnected ? "LAN"
-                 : Network.ssid !== "" ? Network.ssid : "offline"
+                                        : Network.ssid !== "" ? Network.ssid : "offline"
             dimmed: !Network.online
             onClicked: root.openPage("network")
         }
@@ -237,7 +237,7 @@ Item {
         BarItem {
             visible: PowerProfile.available
             icon: PowerProfile.current === "performance" ? Icons.speed
-                : PowerProfile.current === "power-saver" ? Icons.leaf : Icons.balance
+                                                         : PowerProfile.current === "power-saver" ? Icons.leaf : Icons.balance
             // Klik = ganti ke mode berikutnya
             onClicked: {
                 const p = PowerProfile.profiles;

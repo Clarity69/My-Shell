@@ -10,6 +10,7 @@ import qs.bar
 import qs.notifications
 import qs.overview
 import qs.services
+import qs.desktop
 
 ShellRoot {
     ControlCenter {
@@ -25,6 +26,16 @@ ShellRoot {
     }
 
     Overview {}
+
+    GithubWidget {}
+
+    // qs -c shell ipc call github refresh
+    IpcHandler {
+        target: "github"
+
+        function refresh(): void { GitHub.refresh() }
+        function toggle(): void  { WidgetSettings.githubShown = !WidgetSettings.githubShown }
+    }
 
     // qs -c shell ipc call notifications toggle
     IpcHandler {
