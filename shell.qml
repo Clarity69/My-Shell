@@ -7,15 +7,30 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.bar
+import qs.notifications
+import qs.overview
 
 ShellRoot {
     ControlCenter {
         id: controlCenter
     }
 
+    Popups {}
+
     Bar {
         onOpenPage: name => controlCenter.openPage(name)
         onToggleControl: controlCenter.toggle()
+    }
+
+    Overview {}
+
+    // quickshell -c shell ipc call overview toggle
+    IpcHandler {
+        target: "overview"
+
+        function toggle(): void { OverviewState.toggle() }
+        function open(): void   { OverviewState.open() }
+        function close(): void  { OverviewState.close() }
     }
 
     IpcHandler {

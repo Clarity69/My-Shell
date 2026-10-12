@@ -8,6 +8,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
 import qs.config
+import qs.overview
 
 RowLayout {
     id: root
@@ -70,8 +71,12 @@ RowLayout {
                 id: mouse
                 anchors.fill: parent
                 hoverEnabled: true
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
                 cursorShape: Qt.PointingHandCursor
-                onClicked: Hyprland.dispatch("workspace " + ws.modelData)
+                // kiri = pindah workspace, kanan = workspace overview
+                onClicked: mouse => mouse.button === Qt.RightButton
+                                    ? OverviewState.toggle()
+                                    : Hyprland.dispatch("workspace " + ws.modelData)
             }
         }
     }

@@ -18,6 +18,8 @@ Singleton {
     readonly property string memory:        g(0xF035B)
     readonly property string clipboard:     g(0xF0147)
     readonly property string trash:         g(0xF01B4)
+    readonly property string close:         g(0xF0156)
+    readonly property string overview:      g(0xF0570)
 
     // Sesi
     readonly property string power:         g(0xF0425)

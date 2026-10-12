@@ -6,6 +6,7 @@ import Quickshell
 import Quickshell.Wayland
 import qs.config
 import qs.services
+import qs.overview
 
 Item {
     id: root
@@ -29,7 +30,7 @@ Item {
         network: networkC, bluetooth: bluetoothC,
         volume: volumeC, mic: micC, brightness: brightnessC, battery: batteryC,
         cpu: cpuC, memory: memoryC, profile: profileC,
-        notification: notificationC, tray: trayC, clipboard: clipboardC
+        notification: notificationC, tray: trayC, clipboard: clipboardC, overview: overviewC
     })
 
     // Modul yang datanya tidak tersedia disembunyikan (mis. baterai di PC desktop)
@@ -252,11 +253,18 @@ Item {
             icon: Notifications.dnd ? Icons.bellOff : Icons.bell
             label: Notifications.count > 0 ? String(Notifications.count) : ""
             iconColor: Notifications.count > 0 && !Notifications.dnd ? Theme.rose : Theme.text
-            dimmed: !Notifications.available
-            // Kiri = panel swaync (atau DND untuk mako/dunst), kanan = DND, tengah = clear all
-            onClicked: Notifications.isSwaync ? Notifications.openPanel() : Notifications.toggle()
+            // Kiri = pusat notifikasi, kanan = DND, tengah = clear all
+            onClicked: root.openPage("notifications")
             onRightClicked: Notifications.toggle()
             onMiddleClicked: Notifications.clearAll()
+        }
+    }
+
+    Component {
+        id: overviewC
+        BarItem {
+            icon: Icons.overview
+            onClicked: OverviewState.toggle()
         }
     }
 

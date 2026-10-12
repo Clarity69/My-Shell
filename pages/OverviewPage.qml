@@ -176,11 +176,9 @@ Page {
             Layout.preferredWidth: 1
             icon: Notifications.dnd ? Icons.bellOff : Icons.bell
             label: "Do not disturb"
-            sublabel: !Notifications.available ? "No daemon"
-                    : (Notifications.dnd ? "On" : "Off")
+            sublabel: (Notifications.dnd ? "On" : "Off")
                       + (Notifications.count > 0 ? "  ·  " + Notifications.count + " baru" : "")
             active: Notifications.dnd
-            enabled: Notifications.available
             onClicked: Notifications.toggle()
         }
     }

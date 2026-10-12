@@ -14,7 +14,7 @@ import qs.config
 //   height, radius, margin { top, left, right }, flatTop (hanya sudut bawah membulat)
 //   left / center / right : daftar modul, lihat bar/Module.qml
 //     workspaces[:kanji|:roman] window clock date datetime launcher network bluetooth
-//     volume mic brightness battery cpu memory tray notification profile power control clipboard
+//     volume mic brightness battery cpu memory tray notification profile power control clipboard overview
 Singleton {
     id: root
 

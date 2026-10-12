@@ -5,6 +5,13 @@ exec-once = awww-daemon   # lewati kalau sudah dijalankan oleh setup wallpaper-m
 exec-once = ~/.local/bin/controlcenter start
 bind = SUPER, A, exec, ~/.local/bin/controlcenter
 bind = SUPER, V, exec, ~/.local/bin/controlcenter open clipboard
+bind = SUPER, TAB, exec, qs -c shell ipc call overview toggle
+
+# Latar overview ikut blur
+layerrule = blur, quickshell-overview
+layerrule = ignorezero, quickshell-overview
+
+# Notifikasi ditangani Quickshell: HAPUS exec-once = swaync (dan mako/dunst)
 
 # Riwayat clipboard (halaman Clipboard)
 exec-once = wl-paste --type text  --watch cliphist store
@@ -19,3 +26,7 @@ windowrule = pin, title:^(Control Center)$
 # Nilai dari halaman Appearance (gaps, border, rounding, blur, animasi).
 # Letakkan di PALING AKHIR agar menimpa nilai di atasnya.
 source = ~/.config/hypr/quickshell.conf
+
+# Opsional: blur di belakang popup notifikasi
+# layerrule = blur, quickshell-notifications
+# layerrule = ignorezero, quickshell-notifications

@@ -33,6 +33,13 @@ Singleton {
     readonly property int clipLimit: 80                                  // entri yang ditampilkan
     readonly property string clipCacheDir: home + "/.cache/quickshell/clipboard"   // thumbnail gambar
 
+    // ── Notifikasi (Quickshell sebagai daemon, swaync harus dimatikan) ──
+    readonly property string notifPosition: "top-right"     // "top-right" | "bottom-right"
+    readonly property int notifTimeout: 6000                 // ms, 0 = tidak hilang sendiri
+    readonly property int notifMaxPopups: 4
+    readonly property int notifWidth: 360
+    readonly property string notifStateFile: home + "/.cache/quickshell/notif-dnd"
+
     // ── Hyprland ─────────────────────────────────────────────────────
     // Halaman Appearance menulis nilai ke file ini. Agar permanen, tambahkan
     // `source = ~/.config/hypr/quickshell.conf` di AKHIR hyprland.conf.
@@ -52,5 +59,11 @@ Singleton {
     readonly property string barStateFile: home + "/.cache/quickshell/bar-layout"
     // Dijalankan tombol launcher di bar
     readonly property string launcherCommand: "pkill rofi || rofi -show drun"
+    // Kalender muncul saat jam di-hover (klik kanan tetap bisa dipakai)
     readonly property bool calendarOnHover: true
+
+    // ── Workspace overview ───────────────────────────────────────────
+    readonly property int overviewWorkspaces: 5      // 1..N selalu tampil walau kosong
+    readonly property int overviewColumns: 5         // workspace per baris
+    readonly property bool overviewLive: false       // true = preview bergerak (lebih berat)
 }

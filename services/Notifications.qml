@@ -3,88 +3,138 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.Notifications
+import qs.config
 
-// Notifikasi: swaync (lengkap), mako atau dunst (DND saja).
-// swaync dipantau live lewat `swaync-client -s` (JSON per baris):
-//   {"count": 3, "dnd": false, "visible": false, "inhibited": false}
-// Isi notifikasi tetap ditampilkan oleh panel swaync sendiri; swaync-client
-// tidak menyediakan perintah untuk membaca daftar notifikasi.
+// Daemon notifikasi (pengganti swaync). Quickshell memegang
+// org.freedesktop.Notifications, jadi swaync / mako / dunst harus dimatikan.
+//
+//   list      : semua notifikasi (terbaru dulu), untuk pusat notifikasi
+//   popups    : ListModel { nid } yang sedang tampil sebagai popup
+//   dnd       : popup disembunyikan (kecuali critical), riwayat tetap tercatat
 Singleton {
     id: root
 
-    property string daemon: ""       // "swaync" | "mako" | "dunst" | "none"
+    readonly property string daemon: "quickshell"
+    readonly property bool available: true
+
     property bool dnd: false
-    property int count: 0            // jumlah notifikasi (swaync)
-    property bool panelVisible: false
-    readonly property bool available: daemon !== "" && daemon !== "none"
-    readonly property bool isSwaync: daemon === "swaync"
+    property var times: ({})                      // id -> Date diterima
+    property alias popups: popupModel
 
-    function refresh() {
-        if (!proc.running) proc.running = true;
+    readonly property var list: server.trackedNotifications.values.slice().reverse()
+    readonly property int count: list.length
+
+    // Dikelompokkan per aplikasi, kelompok dengan notifikasi terbaru di atas
+    readonly property var groups: {
+        const map = {};
+        const order = [];
+        for (const n of list) {
+            const key = n.appName || "Unknown";
+            if (!map[key]) { map[key] = { app: key, icon: n.appIcon, items: [] }; order.push(key); }
+            map[key].items.push(n);
+        }
+        return order.map(k => map[k]);
     }
 
-    function toggle() {
-        if (!available) return;
-        dnd = !dnd;
-        const cmd = {
-            swaync: ["swaync-client", "-d", "-sw"],
-            mako: ["makoctl", "mode", "-t", "do-not-disturb"],
-            dunst: ["dunstctl", "set-paused", "toggle"]
-        }[daemon];
-        Quickshell.execDetached(cmd);
+    // API lama tetap ada supaya bar & halaman lain tidak perlu banyak diubah
+    function refresh() {}
+    function toggle() { dnd = !dnd; saveDnd(); }
+
+    function find(id) {
+        return server.trackedNotifications.values.find(n => n.id === id) ?? null;
     }
 
-    function openPanel() {
-        if (isSwaync) Quickshell.execDetached(["swaync-client", "-t", "-sw"]);
+    function hidePopup(id) {
+        for (let i = popupModel.count - 1; i >= 0; i--)
+            if (popupModel.get(i).nid === id) popupModel.remove(i);
     }
+
+    function dismiss(n) { if (n) n.dismiss(); }
 
     function clearAll() {
-        if (isSwaync) { Quickshell.execDetached(["swaync-client", "-C", "-sw"]); count = 0; }
-        else if (daemon === "mako") Quickshell.execDetached(["makoctl", "dismiss", "-a"]);
-        else if (daemon === "dunst") Quickshell.execDetached(["dunstctl", "close-all"]);
+        for (const n of server.trackedNotifications.values.slice()) n.dismiss();
+        popupModel.clear();
     }
 
-    readonly property string script: [
-        'if pidof swaync >/dev/null; then echo swaync; swaync-client -D 2>/dev/null',
-        'elif pidof mako >/dev/null; then echo mako; makoctl mode 2>/dev/null | grep -qx do-not-disturb && echo true || echo false',
-        'elif pidof dunst >/dev/null; then echo dunst; dunstctl is-paused 2>/dev/null',
-        'else echo none; fi'
-    ].join("\n")
+    function invoke(n, action) {
+        action.invoke();
+        if (!n.resident) n.dismiss();
+    }
 
-    Process {
-        id: proc
-        command: ["sh", "-c", root.script]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const l = text.trim().split("\n");
-                root.daemon = l[0] ?? "none";
-                root.dnd = (l[1] ?? "").trim() === "true";
-            }
+    // list<NotificationAction> -> array JS biasa
+    function actionsOf(n) {
+        const out = [];
+        if (!n) return out;
+        for (let i = 0; i < n.actions.length; i++) out.push(n.actions[i]);
+        return out;
+    }
+
+    // Aksi "default" = klik badan notifikasi
+    function activate(n) {
+        if (!n) return;
+        const a = actionsOf(n).find(x => x.identifier === "default");
+        if (a) invoke(n, a); else hidePopup(n.id);
+    }
+
+    function iconSource(name) {
+        if (!name) return "";
+        if (name.startsWith("/")) return "file://" + name;
+        if (name.includes("://")) return name;
+        return Quickshell.iconPath(name, true);
+    }
+
+    function ago(id) {
+        const t = times[id];
+        if (!t) return "";
+        const s = Math.floor((Date.now() - t.getTime()) / 1000);
+        if (s < 60) return "now";
+        if (s < 3600) return Math.floor(s / 60) + "m";
+        if (s < 86400) return Math.floor(s / 3600) + "h";
+        return Qt.formatDateTime(t, "dd MMM");
+    }
+
+    ListModel { id: popupModel }
+
+    NotificationServer {
+        id: server
+        keepOnReload: true
+        bodySupported: true
+        bodyMarkupSupported: true
+        bodyHyperlinksSupported: true
+        actionsSupported: true
+        imageSupported: true
+        persistenceSupported: true
+
+        onNotification: n => {
+            n.tracked = true;
+            const t = Object.assign({}, root.times);
+            t[n.id] = new Date();
+            root.times = t;
+
+            n.closed.connect(() => root.hidePopup(n.id));
+
+            const critical = n.urgency === NotificationUrgency.Critical;
+            if (root.dnd && !critical) return;
+
+            root.hidePopup(n.id);                  // notifikasi yang diganti (replaces-id)
+            popupModel.insert(0, { nid: n.id });
+            while (popupModel.count > Config.notifMaxPopups) popupModel.remove(popupModel.count - 1);
         }
     }
 
-    // Langganan live swaync; dijalankan ulang kalau terputus (mis. swaync di-restart)
-    Process {
-        id: subscribe
-        command: ["swaync-client", "-s"]
-        running: root.isSwaync
-        stdout: SplitParser {
-            onRead: line => {
-                let j;
-                try { j = JSON.parse(line); } catch (e) { return; }
-                root.count = j.count ?? 0;
-                root.dnd = j.dnd ?? root.dnd;
-                root.panelVisible = j.visible ?? false;
-            }
-        }
+    // ── DND disimpan supaya bertahan setelah restart ─────────────────
+    function saveDnd() {
+        saveProc.command = ["sh", "-c", 'mkdir -p "$(dirname "$2")" && printf "%s\\n" "$1" > "$2"',
+                            "sh", dnd ? "1" : "0", Config.notifStateFile];
+        saveProc.running = true;
     }
 
-    Timer {
-        interval: 5000
-        repeat: true
-        running: root.isSwaync && !subscribe.running
-        onTriggered: subscribe.running = true
-    }
+    Process { id: saveProc }
 
-    Component.onCompleted: refresh()
+    FileView {
+        path: Config.notifStateFile
+        printErrors: false
+        onLoaded: root.dnd = text().trim() === "1"
+    }
 }

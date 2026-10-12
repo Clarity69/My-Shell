@@ -1,4 +1,4 @@
-// Tampilan: palet pywal, opsi Hyprland (gaps, border, rounding, blur, animasi), DND.
+// Tampilan: palet pywal, layout bar, opsi Hyprland (gaps, border, rounding, blur, animasi).
 
 import QtQuick
 import QtQuick.Layouts
@@ -9,7 +9,6 @@ import qs.bar
 
 Page {
     onOpened: Hypr.refresh()
-    onPoll: Notifications.refresh()
 
     PageHeader { kicker: "03 · look"; title: "Appearance" }
 
@@ -131,40 +130,5 @@ Page {
     Hint {
         text: "Diterapkan langsung dan disimpan ke ~/.config/hypr/quickshell.conf. " +
               "Agar bertahan setelah login, tambahkan  source = ~/.config/hypr/quickshell.conf  di akhir hyprland.conf."
-    }
-
-    // ── Notifikasi ───────────────────────────────────────────────────
-    SectionLabel { Layout.topMargin: 6; text: "notifications" }
-
-    SettingRow {
-        icon: Notifications.dnd ? Icons.bellOff : Icons.bell
-        title: "Do not disturb"
-        sub: Notifications.available ? "via " + Notifications.daemon
-                                     : "Tidak ada swaync, mako, atau dunst yang berjalan"
-        Switch {
-            checked: Notifications.dnd
-            enabled: Notifications.available
-            onToggled: Notifications.toggle()
-        }
-    }
-
-    SettingRow {
-        visible: Notifications.available
-        icon: Icons.bell
-        title: Notifications.isSwaync
-               ? (Notifications.count > 0 ? Notifications.count + " notifikasi" : "Tidak ada notifikasi")
-               : "Notifikasi"
-        sub: Notifications.isSwaync ? "Isi notifikasi ada di panel swaync" : "via " + Notifications.daemon
-
-        TextButton {
-            visible: Notifications.isSwaync
-            text: Notifications.panelVisible ? "Close panel" : "Open panel"
-            onClicked: Notifications.openPanel()
-        }
-        TextButton {
-            text: "Clear all"
-            enabled: !Notifications.isSwaync || Notifications.count > 0
-            onClicked: Notifications.clearAll()
-        }
     }
 }

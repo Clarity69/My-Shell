@@ -28,9 +28,10 @@ FloatingWindow {
         { label: "Bluetooth",  section: "devices",  num: "02", keywords: "headset earbuds pair device" },
         { label: "Sound",      section: "devices",  num: "02", keywords: "audio volume speaker mic microphone output input" },
         { label: "Display",    section: "devices",  num: "02", keywords: "brightness night light screen resolution hyprsunset" },
-        { label: "Appearance", section: "look",     num: "03", keywords: "pywal theme colors gaps rounding blur animation notification dnd bar waybar layout" },
+        { label: "Appearance", section: "look",     num: "03", keywords: "pywal theme colors gaps rounding blur animation bar waybar layout" },
         { label: "Wallpaper",  section: "look",     num: "03", keywords: "awww swww background image pywal" },
         { label: "Clipboard",  section: "system",   num: "04", keywords: "cliphist copy paste history riwayat salin" },
+        { label: "Notifications", section: "system", num: "04", keywords: "notifikasi dnd do not disturb popup history swaync" },
         { label: "Power",      section: "system",   num: "04", keywords: "battery profile lock suspend logout reboot shutdown" },
         { label: "Keybinds",   section: "system",   num: "04", keywords: "shortcuts keys bind hotkey" }
     ]
@@ -121,8 +122,9 @@ FloatingWindow {
                 AppearancePage { active: root.isActive(5) }
                 WallpaperPage  { active: root.isActive(6); onCloseRequested: root.visible = false }
                 ClipboardPage  { active: root.isActive(7) }
-                PowerPage      { active: root.isActive(8); onActionTriggered: root.visible = false }
-                KeybindsPage   { active: root.isActive(9) }
+                NotificationsPage { active: root.isActive(8) }
+                PowerPage      { active: root.isActive(9); onActionTriggered: root.visible = false }
+                KeybindsPage   { active: root.isActive(10) }
             }
         }
     }
