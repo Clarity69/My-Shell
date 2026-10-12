@@ -253,8 +253,8 @@ Item {
             icon: Notifications.dnd ? Icons.bellOff : Icons.bell
             label: Notifications.count > 0 ? String(Notifications.count) : ""
             iconColor: Notifications.count > 0 && !Notifications.dnd ? Theme.rose : Theme.text
-            // Kiri = pusat notifikasi, kanan = DND, tengah = clear all
-            onClicked: root.openPage("notifications")
+            // Kiri = panel notifikasi di bawah bar, kanan = DND, tengah = clear all
+            onClicked: Notifications.toggleCenter()
             onRightClicked: Notifications.toggle()
             onMiddleClicked: Notifications.clearAll()
         }

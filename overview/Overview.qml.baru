@@ -1,0 +1,149 @@
+// Workspace overview: layar penuh, grid workspace dengan preview window.
+//   klik workspace  : pindah ke workspace itu
+//   klik window     : fokus ke window itu
+//   seret window    : pindahkan ke workspace lain
+//   1..9, 0         : lompat ke workspace 1..10
+//   Esc / klik kosong : tutup
+// Buka lewat IPC:  qs -c shell ipc call overview toggle
+
+import QtQuick
+import Quickshell
+import Quickshell.Wayland
+import Quickshell.Hyprland
+import qs.config
+
+Scope {
+    id: root
+
+    property bool open: false
+    property string screenName: ""
+
+    function show() {
+        screenName = Hyprland.focusedMonitor?.name ?? "";
+        Hyprland.refreshWorkspaces();
+        Hyprland.refreshToplevels();
+        open = true;
+    }
+    function hide() { open = false; }
+    function toggle() { if (open) hide(); else show(); }
+
+    function goTo(id) {
+        Hyprland.dispatch("workspace " + id);
+        hide();
+    }
+
+    function focusWindow(address) {
+        Hyprland.dispatch("focuswindow address:" + address);
+        hide();
+    }
+
+    function moveWindow(address, id) {
+        Hyprland.dispatch("movetoworkspacesilent " + id + ",address:" + address);
+        refreshLater.restart();
+    }
+
+    // Posisi window diperbarui setelah Hyprland selesai memindahkan
+    Timer {
+        id: refreshLater
+        interval: 120
+        onTriggered: Hyprland.refreshToplevels()
+    }
+
+    PanelWindow {
+        id: win
+
+        screen: Quickshell.screens.find(s => s.name === root.screenName) ?? Quickshell.screens[0]
+        visible: root.open
+        anchors { top: true; bottom: true; left: true; right: true }
+        color: "transparent"
+
+        exclusionMode: ExclusionMode.Ignore
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.keyboardFocus: root.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+        WlrLayershell.namespace: "quickshell-overview"
+
+        readonly property int count: Config.overviewWorkspaces
+        readonly property int cols: Math.min(Config.overviewColumns, count)
+        readonly property int rows: Math.ceil(count / cols)
+        readonly property real aspect: win.screen ? win.screen.width / win.screen.height : 16 / 9
+        readonly property real gap: 18
+        readonly property real availW: width - 160
+        readonly property real availH: height - 200
+        readonly property real tileW: Math.min((availW - (cols - 1) * gap) / cols,
+                                               (availH - (rows - 1) * gap) / rows * aspect)
+        readonly property real tileH: tileW / aspect
+        readonly property int activeId: Hyprland.focusedMonitor?.activeWorkspace?.id ?? -1
+
+        // Latar gelap; klik di area kosong = tutup
+        Rectangle {
+            anchors.fill: parent
+            color: Theme.bg
+            opacity: root.open ? 0.88 : 0
+            Behavior on opacity { NumberAnimation { duration: 160 } }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: root.hide()
+            }
+        }
+
+        Item {
+            id: keys
+            anchors.fill: parent
+            focus: root.open
+            Keys.onPressed: event => {
+                if (event.key === Qt.Key_Escape) { root.hide(); event.accepted = true; }
+                else if (event.key >= Qt.Key_1 && event.key <= Qt.Key_9) { root.goTo(event.key - Qt.Key_0); event.accepted = true; }
+                else if (event.key === Qt.Key_0) { root.goTo(10); event.accepted = true; }
+            }
+        }
+
+        Column {
+            anchors.centerIn: parent
+            spacing: 24
+            opacity: root.open ? 1 : 0
+            scale: root.open ? 1 : 0.96
+            Behavior on opacity { NumberAnimation { duration: 180 } }
+            Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "WORKSPACES"
+                color: Theme.muted
+                font.family: Theme.font
+                font.pixelSize: 11
+                font.letterSpacing: 3
+            }
+
+            Grid {
+                anchors.horizontalCenter: parent.horizontalCenter
+                columns: win.cols
+                spacing: win.gap
+
+                Repeater {
+                    model: win.count
+
+                    WorkspaceTile {
+                        required property int index
+                        wsId: index + 1
+                        width: win.tileW
+                        height: win.tileH
+                        current: wsId === win.activeId
+                        fallbackScreen: win.screen
+                        onActivated: root.goTo(wsId)
+                        onWindowClicked: address => root.focusWindow(address)
+                        onWindowDropped: (address, id) => root.moveWindow(address, id)
+                    }
+                }
+            }
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "klik untuk pindah  ·  seret window ke workspace lain  ·  1–0 lompat  ·  esc tutup"
+                color: Theme.muted
+                font.family: Theme.font
+                font.pixelSize: 10
+            }
+        }
+    }
+}

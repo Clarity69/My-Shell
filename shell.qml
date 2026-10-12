@@ -9,6 +9,7 @@ import Quickshell.Io
 import qs.bar
 import qs.notifications
 import qs.overview
+import qs.services
 
 ShellRoot {
     ControlCenter {
@@ -16,6 +17,7 @@ ShellRoot {
     }
 
     Popups {}
+    NotifCenter {}
 
     Bar {
         onOpenPage: name => controlCenter.openPage(name)
@@ -23,6 +25,17 @@ ShellRoot {
     }
 
     Overview {}
+
+    // qs -c shell ipc call notifications toggle
+    IpcHandler {
+        target: "notifications"
+
+        function toggle(): void { Notifications.toggleCenter() }
+        function open(): void   { Notifications.centerOpen = true }
+        function close(): void  { Notifications.centerOpen = false }
+        function dnd(): void    { Notifications.toggle() }
+        function clear(): void  { Notifications.clearAll() }
+    }
 
     // quickshell -c shell ipc call overview toggle
     IpcHandler {

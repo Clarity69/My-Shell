@@ -19,6 +19,12 @@ Singleton {
     readonly property bool available: true
 
     property bool dnd: false
+    property bool centerOpen: false               // panel notifikasi di bawah bar
+
+    function toggleCenter() { centerOpen = !centerOpen; }
+
+    // Saat panel dibuka, popup yang sedang tampil disingkirkan (sudah terlihat di panel)
+    onCenterOpenChanged: if (centerOpen) popupModel.clear()
     property var times: ({})                      // id -> Date diterima
     property alias popups: popupModel
 
@@ -115,7 +121,7 @@ Singleton {
             n.closed.connect(() => root.hidePopup(n.id));
 
             const critical = n.urgency === NotificationUrgency.Critical;
-            if (root.dnd && !critical) return;
+            if ((root.dnd || root.centerOpen) && !critical) return;
 
             root.hidePopup(n.id);                  // notifikasi yang diganti (replaces-id)
             popupModel.insert(0, { nid: n.id });

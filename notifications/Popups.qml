@@ -17,7 +17,7 @@ PanelWindow {
         ? BarState.layout.height + (BarState.layout.margin?.top ?? 0) : 0
 
     screen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens[0]
-    visible: Notifications.popups.count > 0
+    visible: Notifications.popups.count > 0 && !Notifications.centerOpen
 
     anchors {
         top: !root.bottom
