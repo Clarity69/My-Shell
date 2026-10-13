@@ -76,6 +76,17 @@ Singleton {
     // Kalender muncul saat jam di-hover (klik kanan tetap bisa dipakai)
     readonly property bool calendarOnHover: true
 
+    // ── Cuaca (Open-Meteo, tanpa API key; butuh curl + jq) ───────────
+    // Tampil di popup kalender + modul bar "weather".
+    readonly property bool weatherEnabled: true
+    // Kosong = lokasi otomatis dari IP. Isi kalau hasil IP meleset, mis. "-6.2" / "106.8"
+    readonly property string weatherLat: ""
+    readonly property string weatherLon: ""
+    readonly property string weatherCity: ""          // nama yang ditampilkan; kosong = dari IP
+    readonly property int weatherRefreshMinutes: 30
+    readonly property string weatherScript: home + "/.config/quickshell/shell/bin/weather"
+    readonly property string weatherCache: home + "/.cache/quickshell/weather.json"
+
     // ── Workspace overview ───────────────────────────────────────────
     readonly property int overviewWorkspaces: 5      // 1..N selalu tampil walau kosong
     readonly property int overviewColumns: 5         // workspace per baris

@@ -1,0 +1,35 @@
+#!/bin/sh
+# Ambil cuaca dari Open-Meteo (gratis, tanpa API key), simpan sebagai JSON cache.
+#   weather [lat] [lon] [kota] [cache-file]
+# lat/lon kosong = lokasi otomatis dari IP (ipinfo.io). Butuh curl + jq.
+
+LAT="$1"
+LON="$2"
+CITY="$3"
+CACHE="${4:-$HOME/.cache/quickshell/weather.json}"
+TMP="$CACHE.tmp"
+mkdir -p "$(dirname "$CACHE")"
+
+command -v jq >/dev/null || { echo "weather: jq belum terpasang" >&2; exit 1; }
+
+if [ -z "$LAT" ] || [ -z "$LON" ]; then
+    loc=$(curl -fsSL --max-time 10 https://ipinfo.io/json) || { echo "weather: gagal mendeteksi lokasi" >&2; exit 1; }
+    LAT=$(printf '%s' "$loc" | jq -r '.loc' | cut -d, -f1)
+    LON=$(printf '%s' "$loc" | jq -r '.loc' | cut -d, -f2)
+    [ -z "$CITY" ] && CITY=$(printf '%s' "$loc" | jq -r '.city // ""')
+fi
+
+URL="https://api.open-meteo.com/v1/forecast?latitude=$LAT&longitude=$LON\
+&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,is_day\
+&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max\
+&timezone=auto&forecast_days=5"
+
+if curl -fsSL --max-time 20 "$URL" | jq --arg city "$CITY" '. + { city: $city }' > "$TMP" 2>/dev/null \
+   && jq -e '.current.temperature_2m' "$TMP" >/dev/null 2>&1; then
+    mv "$TMP" "$CACHE"
+    exit 0
+fi
+
+rm -f "$TMP"
+echo "weather: gagal mengambil data cuaca" >&2
+exit 1

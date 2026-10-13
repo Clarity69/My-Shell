@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.config
+import qs.services
 
 PopupWindow {
     id: popup
@@ -59,11 +60,18 @@ PopupWindow {
     }
 
     anchor.window: barWindow
-    implicitWidth: 248
+    readonly property bool showWeather: Config.weatherEnabled && Weather.available
+    readonly property var shortDays: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"]   // getDay(): Minggu = 0
+
+    implicitWidth: 272
     implicitHeight: body.implicitHeight + 24
     color: "transparent"
 
-    onVisibleChanged: if (visible) { resetMonth(); place(); }
+    onVisibleChanged: if (visible) {
+        resetMonth();
+        place();
+        if (Config.weatherEnabled && !Weather.available) Weather.refresh();
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -82,6 +90,69 @@ PopupWindow {
             anchors.fill: parent
             anchors.margins: 12
             spacing: 8
+
+            // ── Cuaca sekarang (klik ikon = refresh) ─────────────────
+            RowLayout {
+                Layout.fillWidth: true
+                visible: popup.showWeather
+                spacing: 12
+
+                Text {
+                    text: Weather.icon
+                    color: Theme.accent
+                    font.family: Theme.font
+                    font.pixelSize: 34
+                    opacity: Weather.loading ? 0.5 : 1
+                    MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Weather.refresh() }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 0
+
+                    RowLayout {
+                        spacing: 8
+                        Text {
+                            text: Math.round(Weather.temp) + "°"
+                            color: Theme.text
+                            font.family: Theme.serif
+                            font.pixelSize: 28
+                        }
+                        ColumnLayout {
+                            spacing: 0
+                            Text {
+                                text: Weather.description
+                                color: Theme.text
+                                font.family: Theme.font
+                                font.pixelSize: Theme.fontSize - 1
+                            }
+                            Text {
+                                text: Weather.loading ? "memperbarui…" : Weather.city
+                                color: Theme.muted
+                                font.family: Theme.font
+                                font.pixelSize: 10
+                                elide: Text.ElideRight
+                                Layout.maximumWidth: 150
+                            }
+                        }
+                    }
+
+                    Text {
+                        text: "terasa " + Math.round(Weather.feels) + "°   ·   "
+                              + Weather.humidity + "%   ·   " + Math.round(Weather.wind) + " km/j"
+                        color: Theme.subtext
+                        font.family: Theme.font
+                        font.pixelSize: 10
+                    }
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: 1
+                color: Theme.border
+                visible: popup.showWeather
+            }
 
             // Judul + navigasi
             RowLayout {
@@ -169,6 +240,67 @@ PopupWindow {
                 color: Theme.subtext
                 font.family: Theme.font
                 font.pixelSize: 10
+            }
+
+            // ── Ramalan 5 hari ───────────────────────────────────────
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: 1
+                color: Theme.border
+                visible: popup.showWeather
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                visible: popup.showWeather
+                spacing: 0
+
+                Repeater {
+                    model: Weather.daily
+                    ColumnLayout {
+                        required property var modelData
+                        required property int index
+                        Layout.fillWidth: true
+                        spacing: 2
+
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: index === 0 ? "Hari ini" : popup.shortDays[modelData.date.getDay()]
+                            color: index === 0 ? Theme.text : Theme.muted
+                            font.family: Theme.font
+                            font.pixelSize: 10
+                        }
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: Weather.iconFor(modelData.code, true)
+                            color: Theme.accent
+                            font.family: Theme.font
+                            font.pixelSize: 18
+                        }
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: Math.round(modelData.max) + "°"
+                            color: Theme.text
+                            font.family: Theme.font
+                            font.pixelSize: Theme.fontSize - 2
+                        }
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: Math.round(modelData.min) + "°"
+                            color: Theme.muted
+                            font.family: Theme.font
+                            font.pixelSize: 10
+                        }
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            visible: modelData.rain >= 30     // tampil kalau peluang hujan lumayan
+                            text: modelData.rain + "%"
+                            color: Theme.rose
+                            font.family: Theme.font
+                            font.pixelSize: 9
+                        }
+                    }
+                }
             }
         }
     }

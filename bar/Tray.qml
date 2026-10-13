@@ -22,8 +22,8 @@ RowLayout {
             id: item
             required property var modelData
 
-            implicitWidth: 16
-            implicitHeight: 16
+            implicitWidth: 15
+            implicitHeight: 15
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             cursorShape: Qt.PointingHandCursor
 
