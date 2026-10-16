@@ -32,6 +32,7 @@ ShellRoot {
     Island {}
 
     GithubWidget {}
+    ClockWidget {}
 
     // qs -c shell ipc call github refresh
     IpcHandler {

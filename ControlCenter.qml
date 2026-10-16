@@ -30,7 +30,7 @@ FloatingWindow {
         { label: "Display",    section: "devices",  num: "02", keywords: "brightness night light screen resolution hyprsunset" },
         { label: "Appearance", section: "look",     num: "03", keywords: "pywal theme colors gaps rounding blur animation bar waybar layout" },
         { label: "Wallpaper",  section: "look",     num: "03", keywords: "awww swww background image pywal" },
-        { label: "Widgets",    section: "look",     num: "03", keywords: "desktop widget github contributions graph" },
+        { label: "Widgets",    section: "look",     num: "03", keywords: "desktop widget github contributions graph clock jam" },
         { label: "Clipboard",  section: "system",   num: "04", keywords: "cliphist copy paste history riwayat salin" },
         { label: "Notifications", section: "system", num: "04", keywords: "notifikasi dnd do not disturb popup history swaync" },
         { label: "Power",      section: "system",   num: "04", keywords: "battery profile lock suspend logout reboot shutdown" },

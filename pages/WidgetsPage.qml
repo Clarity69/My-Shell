@@ -156,4 +156,130 @@ Page {
             onClicked: GitHub.refresh()
         }
     }
+
+    // ── Jam desktop ──────────────────────────────────────────────────
+    SectionLabel { Layout.topMargin: 18; text: "desktop clock" }
+
+    SettingRow {
+        title: "Show widget"
+        sub: "Jam, tanggal, cuaca, dan statistik sistem"
+        Switch {
+            checked: WidgetSettings.clockShown
+            onToggled: WidgetSettings.clockShown = !WidgetSettings.clockShown
+        }
+    }
+
+    ColumnLayout {
+        Layout.fillWidth: true
+        spacing: 14
+        enabled: WidgetSettings.clockShown
+        opacity: enabled ? 1 : 0.45
+
+        ColumnLayout {
+            Layout.fillWidth: true
+            spacing: 6
+
+            Text {
+                text: "POSITION"
+                color: Theme.muted
+                font.family: Theme.font
+                font.pixelSize: 10
+                font.letterSpacing: 1.5
+            }
+
+            GridLayout {
+                Layout.fillWidth: true
+                columns: 2
+                columnSpacing: 4
+                rowSpacing: 2
+
+                Repeater {
+                    model: root.positions
+                    ListRow {
+                        required property var modelData
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        title: modelData.label
+                        trailing: WidgetSettings.clockPosition === modelData.id ? "active" : ""
+                        active: WidgetSettings.clockPosition === modelData.id
+                        onClicked: WidgetSettings.clockPosition = modelData.id
+                    }
+                }
+            }
+        }
+
+        ColumnLayout {
+            Layout.fillWidth: true
+            spacing: 6
+            visible: Quickshell.screens.length > 1
+
+            Text {
+                text: "MONITOR"
+                color: Theme.muted
+                font.family: Theme.font
+                font.pixelSize: 10
+                font.letterSpacing: 1.5
+            }
+
+            Flow {
+                Layout.fillWidth: true
+                spacing: 6
+
+                Repeater {
+                    model: Quickshell.screens
+                    TextButton {
+                        required property var modelData
+                        required property int index
+                        readonly property bool current: WidgetSettings.clockScreen === modelData.name
+                            || (WidgetSettings.clockScreen === "" && index === 0)
+                        text: modelData.name + "  " + modelData.width + "×" + modelData.height
+                        primary: current
+                        onClicked: WidgetSettings.clockScreen = modelData.name
+                    }
+                }
+            }
+        }
+
+        ValueSlider {
+            label: "clock size"
+            from: 48; to: 140; suffix: "px"
+            value: WidgetSettings.clockSize
+            onMoved: v => WidgetSettings.clockSize = v
+        }
+
+        SettingRow {
+            title: "Seconds"
+            sub: "Detik kecil di samping jam"
+            Switch {
+                checked: WidgetSettings.clockSeconds
+                onToggled: WidgetSettings.clockSeconds = !WidgetSettings.clockSeconds
+            }
+        }
+
+        SettingRow {
+            title: "System stats"
+            sub: "CPU, RAM, suhu, dan uptime di bawah jam"
+            Switch {
+                checked: WidgetSettings.clockStats
+                onToggled: WidgetSettings.clockStats = !WidgetSettings.clockStats
+            }
+        }
+
+        SettingRow {
+            title: "Card background"
+            sub: "Mati = teks langsung di atas wallpaper (dengan bayangan)"
+            Switch {
+                checked: WidgetSettings.clockCard
+                onToggled: WidgetSettings.clockCard = !WidgetSettings.clockCard
+            }
+        }
+
+        ValueSlider {
+            visible: WidgetSettings.clockCard
+            label: "card opacity"
+            from: 30; to: 100; suffix: "%"
+            value: Math.round(WidgetSettings.clockOpacity * 100)
+            onMoved: v => WidgetSettings.clockOpacity = v / 100
+        }
+    }
 }

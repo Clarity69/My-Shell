@@ -19,9 +19,21 @@ Singleton {
     property int githubCell: Config.githubCellSize
     property real githubOpacity: 0.92
 
+    // ── Jam desktop ──────────────────────────────────────────────────
+    property bool clockShown: Config.clockWidget
+    property string clockPosition: Config.clockPosition
+    property string clockScreen: ""
+    property bool clockCard: false
+    property real clockOpacity: 0.85
+    property int clockSize: 84
+    property bool clockSeconds: false
+    property bool clockStats: true
+
     // Daftar properti yang disimpan
     readonly property var keys: ["githubShown", "githubPosition", "githubScreen",
-                                 "githubCard", "githubCell", "githubOpacity"]
+                                 "githubCard", "githubCell", "githubOpacity",
+                                 "clockShown", "clockPosition", "clockScreen", "clockCard",
+                                 "clockOpacity", "clockSize", "clockSeconds", "clockStats"]
 
     property bool loaded: false
 
@@ -32,6 +44,14 @@ Singleton {
         githubCard = Config.githubCardBackground;
         githubCell = Config.githubCellSize;
         githubOpacity = 0.92;
+        clockShown = Config.clockWidget;
+        clockPosition = Config.clockPosition;
+        clockScreen = "";
+        clockCard = false;
+        clockOpacity = 0.85;
+        clockSize = 84;
+        clockSeconds = false;
+        clockStats = true;
     }
 
     // Simpan 400 ms setelah perubahan terakhir
@@ -41,6 +61,14 @@ Singleton {
     onGithubCardChanged: saveTimer.restart()
     onGithubCellChanged: saveTimer.restart()
     onGithubOpacityChanged: saveTimer.restart()
+    onClockShownChanged: saveTimer.restart()
+    onClockPositionChanged: saveTimer.restart()
+    onClockScreenChanged: saveTimer.restart()
+    onClockCardChanged: saveTimer.restart()
+    onClockOpacityChanged: saveTimer.restart()
+    onClockSizeChanged: saveTimer.restart()
+    onClockSecondsChanged: saveTimer.restart()
+    onClockStatsChanged: saveTimer.restart()
 
     Timer {
         id: saveTimer

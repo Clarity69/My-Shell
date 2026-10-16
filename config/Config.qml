@@ -51,6 +51,10 @@ Singleton {
     readonly property int githubRefreshMinutes: 30
     readonly property string githubScript: home + "/.config/quickshell/shell/bin/github-contrib"
     readonly property string githubCache: home + "/.cache/quickshell/github-contrib.txt"
+    // ── Widget jam desktop ───────────────────────────────────────────
+    readonly property bool clockWidget: true
+    readonly property string clockPosition: "top-left"
+
     // Pengaturan dari halaman Widgets disimpan di sini (menimpa nilai default di atas)
     readonly property string widgetStateFile: home + "/.cache/quickshell/widgets.json"
 
@@ -92,6 +96,11 @@ Singleton {
     readonly property bool islandEnabled: true
     readonly property bool islandOsd: true            // volume & kecerahan muncul di island
     readonly property bool islandNotifications: true  // notifikasi muncul di island, bukan popup
+    readonly property bool islandWorkspaceHint: true  // "Workspace 2" sebentar saat pindah workspace
+    readonly property int islandHeight: 34            // tinggi pil saat ringkas
+    readonly property string islandFont: "Inter"      // font sans tebal ala Tide (pacman -S inter-font)
+    readonly property string islandClockFormat: "hh:mm"   // "hh:mm ap" = 04:57 pm
+    readonly property bool islandUseTheme: false      // false = hitam-putih seperti Tide, true = warna pywal
 
     // ── Workspace overview ───────────────────────────────────────────
     readonly property int overviewWorkspaces: 5      // 1..N selalu tampil walau kosong

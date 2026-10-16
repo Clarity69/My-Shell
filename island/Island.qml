@@ -1,12 +1,12 @@
-// Dynamic island: pil di tengah bar yang berubah bentuk sesuai keadaan.
-//   idle      jam (+ cuaca, titik kalau ada notifikasi)
-//   media     cover kecil + judul lagu + equalizer      (MPRIS: Spotify, browser, mpv, ...)
-//   osd       volume / kecerahan saat berubah
+// Dynamic island ala Tide Island: pil hitam melayang di tengah atas,
+// lebarnya mengikuti isi dan berubah bentuk dengan animasi pegas.
+//   idle      jam
+//   media     judul lagu + equalizer
+//   hint      volume / kecerahan / baterai (ikon + persen + cincin), pindah workspace
 //   notif     notifikasi baru (klik = buka, klik kanan = tutup)
-//   expanded  hover / klik: kontrol media lengkap, atau jam besar + tanggal + cuaca
+//   expanded  hover / klik: player lengkap, atau jam besar + tanggal + cuaca
 //
 // Muncul kalau layout bar aktif punya `island: true` (lihat bar/BarState.qml).
-// Bagian tengah bar disembunyikan, island yang mengisi tempatnya.
 
 import QtQuick
 import QtQuick.Layouts
@@ -14,6 +14,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Widgets
+import Quickshell.Hyprland
 import Quickshell.Services.Mpris
 import Quickshell.Services.Pipewire
 import qs.config
@@ -26,6 +27,8 @@ Scope {
     readonly property var lay: BarState.layout
     readonly property bool active: Config.islandEnabled && BarState.shown && lay.island === true
 
+    // Warna & font: config/IslandStyle.qml
+
     // ── Media ────────────────────────────────────────────────────────
     readonly property var players: Mpris.players.values
     readonly property var player: players.find(p => p.isPlaying) ?? players[0] ?? null
@@ -33,25 +36,26 @@ Scope {
     readonly property bool playing: hasMedia && player.isPlaying
 
     // ── Keadaan sementara ────────────────────────────────────────────
-    property string osdKind: ""          // "volume" | "brightness"
-    property real osdValue: 0
-    property bool osdMuted: false
+    property string hintIcon: ""
+    property string hintText: ""
+    property real hintRing: -1           // 0..1 = tampilkan cincin, -1 = tanpa cincin
     property var notif: null
     property bool expanded: false
-    property bool pinned: false          // dibuka lewat klik, tidak tertutup saat mouse keluar
-    property bool ready: false           // abaikan perubahan volume/kecerahan saat start
+    property bool pinned: false
+    property bool ready: false           // abaikan perubahan saat baru start
 
     readonly property string mode: notif ? "notif"
-                                 : osdKind !== "" ? "osd"
+                                 : hintText !== "" ? "hint"
                                  : expanded ? "expanded"
                                  : hasMedia ? "media" : "idle"
 
-    function showOsd(kind, value, muted) {
-        if (!Config.islandOsd || !ready || !active) return;
-        osdKind = kind;
-        osdValue = Math.max(0, Math.min(1, value));
-        osdMuted = muted;
-        osdTimer.restart();
+    function hint(icon, text, ring, ms) {
+        if (!ready || !active) return;
+        hintIcon = icon;
+        hintText = text;
+        hintRing = ring;
+        hintTimer.interval = ms ?? 1400;
+        hintTimer.restart();
     }
 
     function fmt(s) {
@@ -61,15 +65,11 @@ Scope {
 
     function hoverIn()  { collapseTimer.stop(); if (!expanded) expandTimer.restart(); }
     function hoverOut() { expandTimer.stop(); if (!pinned) collapseTimer.restart(); }
+    function togglePinned() { pinned = !(pinned && expanded); expanded = pinned; }
 
-    function togglePinned() {
-        pinned = !(pinned && expanded);
-        expanded = pinned;
-    }
-
-    Timer { interval: 1500; running: true; onTriggered: root.ready = true }
-    Timer { id: osdTimer; interval: 1400; onTriggered: root.osdKind = "" }
-    Timer { id: notifTimer; interval: Math.max(3000, Config.notifTimeout); onTriggered: root.notif = null }
+    Timer { interval: 2000; running: true; onTriggered: root.ready = true }
+    Timer { id: hintTimer; interval: 1400; onTriggered: root.hintText = "" }
+    Timer { id: notifTimer; interval: 4000; onTriggered: root.notif = null }
     Timer { id: expandTimer; interval: 250; onTriggered: root.expanded = true }
     Timer { id: collapseTimer; interval: 450; onTriggered: { root.expanded = false; root.pinned = false; } }
 
@@ -85,14 +85,21 @@ Scope {
     readonly property var sink: Pipewire.defaultAudioSink
     PwObjectTracker { objects: [root.sink] }
 
+    function volumeHint() {
+        if (!Config.islandOsd || !sink?.audio) return;
+        const v = Math.min(1, sink.audio.volume);
+        hint(sink.audio.muted ? Icons.volumeOff : Icons.volume,
+             sink.audio.muted ? "Muted" : Math.round(v * 100) + "%", sink.audio.muted ? 0 : v);
+    }
+
     Connections {
         target: root.sink?.audio ?? null
         ignoreUnknownSignals: true
-        function onVolumeChanged() { root.showOsd("volume", root.sink.audio.volume, root.sink.audio.muted); }
-        function onMutedChanged()  { root.showOsd("volume", root.sink.audio.volume, root.sink.audio.muted); }
+        function onVolumeChanged() { root.volumeHint(); }
+        function onMutedChanged()  { root.volumeHint(); }
     }
 
-    // ── Kecerahan (baca /sys/class/backlight berkala, ringan) ────────
+    // ── Kecerahan (baca /sys/class/backlight berkala) ────────────────
     property string backlight: ""
     property int maxBright: 0
 
@@ -118,7 +125,10 @@ Scope {
         onLoaded: {
             const v = parseInt(text());
             if (isNaN(v)) return;
-            if (last >= 0 && v !== last) root.showOsd("brightness", v / root.maxBright, false);
+            if (last >= 0 && v !== last) {
+                const r = v / root.maxBright;
+                root.hint(Icons.brightness, Math.round(r * 100) + "%", r);
+            }
             last = v;
         }
     }
@@ -128,6 +138,27 @@ Scope {
         repeat: true
         running: root.active && Config.islandOsd && root.backlight !== ""
         onTriggered: brightFile.reload()
+    }
+
+    // ── Baterai: colok / cabut charger ───────────────────────────────
+    Connections {
+        target: Battery
+        function onChargingChanged() {
+            if (!Battery.available) return;
+            root.hint(Battery.charging ? Icons.charging : Icons.battery,
+                      (Battery.charging ? "Charging " : "On battery ") + Battery.percent + "%",
+                      Battery.percent / 100, 2200);
+        }
+    }
+
+    // ── Pindah workspace ─────────────────────────────────────────────
+    Connections {
+        target: Hyprland
+        enabled: Config.islandWorkspaceHint
+        function onFocusedWorkspaceChanged() {
+            const ws = Hyprland.focusedWorkspace;
+            if (ws && ws.id > 0) root.hint("", "Workspace " + ws.name, -1, 900);
+        }
     }
 
     // ── Notifikasi ───────────────────────────────────────────────────
@@ -162,24 +193,22 @@ Scope {
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.layer: WlrLayer.Overlay
             WlrLayershell.namespace: "quickshell-island"
-            implicitWidth: 520
-            implicitHeight: 220
+            implicitWidth: 560
+            implicitHeight: 240
             color: "transparent"
 
             // Klik di luar pil tembus ke aplikasi di bawahnya
             mask: Region { item: pill }
 
-            readonly property int compactH: root.lay.style === "islands" ? root.lay.height : root.lay.height - 6
-            readonly property int topY: (root.lay.margin?.top ?? 0) + Math.round((root.lay.height - compactH) / 2)
+            readonly property int compactH: Config.islandHeight
+            readonly property int topY: Math.max(2, (root.lay.margin?.top ?? 0) + Math.round((root.lay.height - compactH) / 2))
 
-            readonly property int targetW: ({
-                idle: 150, media: 290, osd: 260, notif: 400,
-                expanded: root.hasMedia ? 420 : 300
-            })[root.mode]
-            readonly property int targetH: ({
-                idle: compactH, media: compactH, osd: compactH, notif: 64,
-                expanded: root.hasMedia ? 132 : 104
-            })[root.mode]
+            // Lebar mengikuti isi (seperti Tide), dibatasi supaya tidak kebablasan
+            readonly property real targetW: Math.min(520, ({
+                idle: idleFace.wantW, media: mediaFace.wantW, hint: hintFace.wantW,
+                notif: notifFace.wantW, expanded: root.hasMedia ? 420 : 300
+            })[root.mode])
+            readonly property real targetH: root.mode === "expanded" ? (root.hasMedia ? 176 : 112) : compactH
 
             Rectangle {
                 id: pill
@@ -187,15 +216,15 @@ Scope {
                 y: win.topY
                 width: win.targetW
                 height: win.targetH
-                radius: Math.min(height / 2, 26)
-                color: Theme.bg
-                border.width: 1
+                radius: root.mode === "expanded" ? 32 : height / 2
+                color: IslandStyle.bg
+                border.width: Config.islandUseTheme ? 1 : 0
                 border.color: Theme.border
                 clip: true
 
-                Behavior on width  { NumberAnimation { duration: 420; easing.type: Easing.OutBack; easing.overshoot: 1.2 } }
-                Behavior on height { NumberAnimation { duration: 420; easing.type: Easing.OutBack; easing.overshoot: 1.2 } }
-                Behavior on radius { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                Behavior on width  { SpringAnimation { spring: 3.2; damping: 0.28; epsilon: 0.3 } }
+                Behavior on height { SpringAnimation { spring: 3.2; damping: 0.30; epsilon: 0.3 } }
+                Behavior on radius { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
 
                 HoverHandler {
                     onHoveredChanged: hovered ? root.hoverIn() : root.hoverOut()
@@ -203,202 +232,183 @@ Scope {
 
                 MouseArea {
                     anchors.fill: parent
-                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
                     cursorShape: Qt.PointingHandCursor
                     onClicked: mouse => {
                         if (root.mode === "notif") {
                             if (mouse.button === Qt.RightButton) Notifications.dismiss(root.notif);
                             else Notifications.activate(root.notif);
                             root.notif = null;
+                        } else if (mouse.button === Qt.MiddleButton && root.hasMedia) {
+                            root.player.togglePlaying();
                         } else if (mouse.button === Qt.LeftButton) {
                             root.togglePinned();
                         }
                     }
                 }
 
-                // ── idle ─────────────────────────────────────────────
+                // ── idle: jam ────────────────────────────────────────
                 Face {
+                    id: idleFace
                     shown: root.mode === "idle"
+                    wantW: idleRow.implicitWidth + 44
                     RowLayout {
+                        id: idleRow
                         anchors.centerIn: parent
-                        spacing: 10
-
-                        Text {
-                            text: Qt.formatDateTime(BarState.clock.date, "hh:mm")
-                            color: Theme.text
-                            font.family: Theme.font
-                            font.pixelSize: Theme.fontSize
-                            font.bold: true
-                        }
-                        Text {
-                            visible: Weather.available && Config.weatherEnabled
-                            text: Weather.icon + " " + Math.round(Weather.temp) + "°"
-                            color: Theme.subtext
-                            font.family: Theme.font
-                            font.pixelSize: Theme.fontSize - 2
+                        spacing: 8
+                        IslandText {
+                            text: Qt.formatDateTime(BarState.clock.date, Config.islandClockFormat)
+                            font.pixelSize: 15
                         }
                         Rectangle {
                             visible: Notifications.count > 0 && !Notifications.dnd
                             implicitWidth: 6; implicitHeight: 6; radius: 3
-                            color: Theme.rose
+                            color: IslandStyle.accent
                         }
                     }
                 }
 
-                // ── media (ringkas) ──────────────────────────────────
+                // ── media: judul + equalizer ─────────────────────────
                 Face {
+                    id: mediaFace
                     shown: root.mode === "media"
+                    wantW: Math.min(360, mediaTitle.implicitWidth) + 26 + 58
                     RowLayout {
                         anchors.fill: parent
                         anchors.leftMargin: 6
-                        anchors.rightMargin: 14
+                        anchors.rightMargin: 18
                         spacing: 10
-
                         Cover {
-                            size: win.compactH - 8
-                            radius: (win.compactH - 8) / 2
+                            size: win.compactH - 10
+                            radius: (win.compactH - 10) / 2
                             source: root.player?.trackArtUrl ?? ""
                         }
-                        Text {
+                        IslandText {
+                            id: mediaTitle
                             Layout.fillWidth: true
+                            horizontalAlignment: Text.AlignHCenter
                             text: root.player?.trackTitle ?? ""
-                            color: Theme.text
-                            font.family: Theme.font
-                            font.pixelSize: Theme.fontSize - 1
                             elide: Text.ElideRight
                         }
-                        Bars { playing: root.playing }
+                        Bars { playing: root.playing; color: IslandStyle.accent }
                     }
                 }
 
-                // ── osd ──────────────────────────────────────────────
+                // ── hint: OSD / baterai / workspace ──────────────────
                 Face {
-                    shown: root.mode === "osd"
+                    id: hintFace
+                    shown: root.mode === "hint"
+                    wantW: hintRow.implicitWidth + (root.hintRing >= 0 ? 36 : 56)
                     RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: 16
-                        anchors.rightMargin: 16
+                        id: hintRow
+                        anchors.left: root.hintRing >= 0 ? parent.left : undefined
+                        anchors.leftMargin: 18
+                        anchors.horizontalCenter: root.hintRing >= 0 ? undefined : parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
                         spacing: 10
-
-                        Text {
-                            text: root.osdKind === "brightness" ? Icons.brightness
-                                : root.osdMuted ? Icons.volumeOff : Icons.volume
-                            color: Theme.text
+                        IslandText {
+                            visible: root.hintIcon !== ""
+                            text: root.hintIcon
                             font.family: Theme.font
-                            font.pixelSize: Theme.fontSize + 2
+                            font.pixelSize: 16
                         }
-                        Rectangle {
-                            Layout.fillWidth: true
-                            implicitHeight: 6
-                            radius: 3
-                            color: Theme.border
-                            Rectangle {
-                                width: parent.width * root.osdValue
-                                height: parent.height
-                                radius: 3
-                                color: root.osdMuted ? Theme.muted : Theme.accent
-                                Behavior on width { NumberAnimation { duration: 120 } }
-                            }
-                        }
-                        Text {
-                            Layout.preferredWidth: 32
-                            horizontalAlignment: Text.AlignRight
-                            text: Math.round(root.osdValue * 100)
-                            color: Theme.subtext
-                            font.family: Theme.font
-                            font.pixelSize: Theme.fontSize - 2
-                        }
+                        IslandText { text: root.hintText }
+                        Item { visible: root.hintRing >= 0; implicitWidth: 34 }
+                    }
+                    Ring {
+                        visible: root.hintRing >= 0
+                        anchors.right: parent.right
+                        anchors.rightMargin: 8
+                        anchors.verticalCenter: parent.verticalCenter
+                        size: win.compactH - 12
+                        value: root.hintRing
                     }
                 }
 
                 // ── notifikasi ───────────────────────────────────────
                 Face {
+                    id: notifFace
                     shown: root.mode === "notif"
+                    wantW: Math.min(440, notifRow.implicitWidth) + 44
                     RowLayout {
+                        id: notifRow
                         anchors.fill: parent
-                        anchors.leftMargin: 14
-                        anchors.rightMargin: 18
-                        spacing: 12
-
+                        anchors.leftMargin: 18
+                        anchors.rightMargin: 22
+                        spacing: 10
                         IconImage {
-                            implicitSize: 34
+                            id: notifIcon
+                            implicitSize: 18
+                            visible: status === Image.Ready
                             source: {
                                 const n = root.notif;
                                 if (!n) return "";
                                 return Notifications.iconSource(n.image) || Notifications.iconSource(n.appIcon);
                             }
                         }
-                        ColumnLayout {
+                        IslandText {
+                            visible: !notifIcon.visible
+                            text: Icons.bell
+                            font.family: Theme.font
+                            font.pixelSize: 15
+                        }
+                        IslandText {
                             Layout.fillWidth: true
-                            spacing: 2
-                            Text {
-                                Layout.fillWidth: true
-                                text: root.notif ? (root.notif.summary || root.notif.appName) : ""
-                                color: Theme.text
-                                font.family: Theme.font
-                                font.pixelSize: Theme.fontSize - 1
-                                font.bold: true
-                                elide: Text.ElideRight
-                            }
-                            Text {
-                                Layout.fillWidth: true
-                                text: root.notif ? root.notif.body.replace(/<[^>]*>/g, "").replace(/\n/g, " ") : ""
-                                visible: text !== ""
-                                color: Theme.subtext
-                                font.family: Theme.font
-                                font.pixelSize: Theme.fontSize - 2
-                                elide: Text.ElideRight
-                            }
+                            text: root.notif ? (root.notif.summary || root.notif.appName) : ""
+                            elide: Text.ElideRight
                         }
                     }
                 }
 
-                // ── expanded: media ──────────────────────────────────
+                // ── expanded: player ─────────────────────────────────
                 Face {
                     shown: root.mode === "expanded" && root.hasMedia
-                    RowLayout {
+                    ColumnLayout {
                         anchors.fill: parent
-                        anchors.margins: 14
-                        spacing: 14
+                        anchors.margins: 18
+                        anchors.topMargin: 16
+                        spacing: 10
 
-                        Cover { size: 96; radius: 14; source: root.player?.trackArtUrl ?? "" }
-
-                        ColumnLayout {
+                        RowLayout {
                             Layout.fillWidth: true
-                            spacing: 4
-
-                            Text {
+                            spacing: 14
+                            Cover { size: 58; radius: 10; source: root.player?.trackArtUrl ?? "" }
+                            ColumnLayout {
                                 Layout.fillWidth: true
-                                text: root.player?.trackTitle ?? ""
-                                color: Theme.text
-                                font.family: Theme.font
-                                font.pixelSize: Theme.fontSize
-                                font.bold: true
-                                elide: Text.ElideRight
+                                spacing: 2
+                                IslandText {
+                                    Layout.fillWidth: true
+                                    text: root.player?.trackTitle ?? ""
+                                    elide: Text.ElideRight
+                                }
+                                IslandText {
+                                    Layout.fillWidth: true
+                                    text: root.player?.trackArtist || root.player?.identity || ""
+                                    color: IslandStyle.dim
+                                    font.weight: Font.Medium
+                                    font.pixelSize: 13
+                                    elide: Text.ElideRight
+                                }
                             }
-                            Text {
-                                Layout.fillWidth: true
-                                text: root.player?.trackArtist || root.player?.identity || ""
-                                color: Theme.subtext
-                                font.family: Theme.font
-                                font.pixelSize: Theme.fontSize - 2
-                                elide: Text.ElideRight
-                            }
+                            Bars { playing: root.playing; color: IslandStyle.accent; tall: true }
+                        }
 
-                            Item { Layout.fillHeight: true }
-
-                            // Progres (klik untuk lompat kalau player mendukung)
+                        // Progres + waktu (klik untuk lompat kalau player mendukung)
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 10
+                            visible: (root.player?.length ?? 0) > 0
+                            IslandText { text: root.fmt(root.player?.position); color: IslandStyle.dim; font.pixelSize: 11 }
                             Rectangle {
                                 Layout.fillWidth: true
-                                implicitHeight: 4
-                                radius: 2
-                                color: Theme.border
-                                visible: (root.player?.length ?? 0) > 0
+                                implicitHeight: 5
+                                radius: 2.5
+                                color: IslandStyle.faint
                                 Rectangle {
                                     width: parent.width * Math.min(1, (root.player?.position ?? 0) / Math.max(1, root.player?.length ?? 1))
                                     height: parent.height
-                                    radius: 2
-                                    color: Theme.accent
+                                    radius: 2.5
+                                    color: IslandStyle.fg
                                 }
                                 MouseArea {
                                     anchors.fill: parent
@@ -408,26 +418,19 @@ Scope {
                                     onClicked: mouse => root.player.position = root.player.length * Math.max(0, Math.min(1, mouse.x / width))
                                 }
                             }
+                            IslandText { text: root.fmt(root.player?.length); color: IslandStyle.dim; font.pixelSize: 11 }
+                        }
 
-                            RowLayout {
-                                Layout.fillWidth: true
-                                Text {
-                                    text: root.fmt(root.player?.position) + " / " + root.fmt(root.player?.length)
-                                    visible: (root.player?.length ?? 0) > 0
-                                    color: Theme.muted
-                                    font.family: Theme.font
-                                    font.pixelSize: 10
-                                }
-                                Item { Layout.fillWidth: true }
-                                Control { icon: String.fromCodePoint(0xF04AE); enabled: root.player?.canGoPrevious ?? false; onActivated: root.player.previous() }
-                                Control {
-                                    icon: root.playing ? String.fromCodePoint(0xF03E4) : String.fromCodePoint(0xF040A)
-                                    big: true
-                                    enabled: root.player?.canTogglePlaying ?? false
-                                    onActivated: root.player.togglePlaying()
-                                }
-                                Control { icon: String.fromCodePoint(0xF04AD); enabled: root.player?.canGoNext ?? false; onActivated: root.player.next() }
+                        RowLayout {
+                            Layout.alignment: Qt.AlignHCenter
+                            spacing: 44
+                            Control { icon: String.fromCodePoint(0xF04AE); enabled: root.player?.canGoPrevious ?? false; onActivated: root.player.previous() }
+                            Control {
+                                icon: root.playing ? String.fromCodePoint(0xF03E4) : String.fromCodePoint(0xF040A)
+                                enabled: root.player?.canTogglePlaying ?? false
+                                onActivated: root.player.togglePlaying()
                             }
+                            Control { icon: String.fromCodePoint(0xF04AD); enabled: root.player?.canGoNext ?? false; onActivated: root.player.next() }
                         }
                     }
                 }
@@ -438,28 +441,26 @@ Scope {
                     ColumnLayout {
                         anchors.centerIn: parent
                         spacing: 2
-
-                        Text {
+                        IslandText {
                             Layout.alignment: Qt.AlignHCenter
-                            text: Qt.formatDateTime(BarState.clock.date, "hh:mm")
-                            color: Theme.text
-                            font.family: Theme.serif
+                            text: Qt.formatDateTime(BarState.clock.date, Config.islandClockFormat)
                             font.pixelSize: 34
                         }
-                        Text {
+                        IslandText {
                             Layout.alignment: Qt.AlignHCenter
                             text: Qt.formatDateTime(BarState.clock.date, "dddd, d MMMM")
-                            color: Theme.subtext
-                            font.family: Theme.font
-                            font.pixelSize: Theme.fontSize - 2
+                            color: IslandStyle.dim
+                            font.weight: Font.Medium
+                            font.pixelSize: 13
                         }
-                        Text {
+                        IslandText {
                             Layout.alignment: Qt.AlignHCenter
                             visible: Weather.available && Config.weatherEnabled
                             text: Weather.icon + "  " + Math.round(Weather.temp) + "°  " + Weather.description
-                            color: Theme.muted
+                            color: IslandStyle.dim
                             font.family: Theme.font
-                            font.pixelSize: 10
+                            font.bold: false
+                            font.pixelSize: 12
                         }
                     }
                 }
@@ -469,15 +470,24 @@ Scope {
 
     // ── Komponen kecil ───────────────────────────────────────────────
 
+    // Teks island: putih, tebal, font sans (Inter kalau ada)
+    component IslandText: Text {
+        color: IslandStyle.fg
+        font.family: IslandStyle.font
+        font.pixelSize: 14
+        font.weight: Font.DemiBold
+    }
+
     // Satu "wajah" island; cross-fade saat mode berganti
     component Face: Item {
         property bool shown: false
+        property real wantW: 160
         anchors.fill: parent
         opacity: shown ? 1 : 0
         visible: opacity > 0
-        scale: shown ? 1 : 0.92
-        Behavior on opacity { NumberAnimation { duration: shown ? 260 : 120 } }
-        Behavior on scale { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
+        scale: shown ? 1 : 0.9
+        Behavior on opacity { NumberAnimation { duration: shown ? 240 : 100 } }
+        Behavior on scale { NumberAnimation { duration: 280; easing.type: Easing.OutCubic } }
     }
 
     // Cover album, ikon musik kalau tidak ada gambar
@@ -489,13 +499,13 @@ Scope {
         implicitHeight: size
         Layout.preferredWidth: size
         Layout.preferredHeight: size
-        color: Theme.border
+        color: "#222222"
 
         Text {
             anchors.centerIn: parent
             visible: art.status !== Image.Ready
             text: String.fromCodePoint(0xF075A)
-            color: Theme.subtext
+            color: "#aaaaaa"
             font.family: Theme.font
             font.pixelSize: cover.size * 0.5
         }
@@ -514,39 +524,67 @@ Scope {
     component Bars: Row {
         id: bars
         property bool playing: false
-        spacing: 2
+        property bool tall: false
+        property color color: "white"
+        spacing: 3
         Layout.alignment: Qt.AlignVCenter
         Repeater {
-            model: 4
+            model: 5
             Rectangle {
                 required property int index
+                readonly property real peak: (bars.tall ? 20 : 13) - Math.abs(2 - index) * 3
                 width: 3
                 height: 4
                 radius: 1.5
                 anchors.verticalCenter: parent.verticalCenter
-                color: Theme.accent
+                color: bars.color
                 SequentialAnimation on height {
                     running: bars.playing
                     loops: Animation.Infinite
-                    NumberAnimation { to: 12 - index * 2; duration: 260 + index * 70; easing.type: Easing.InOutSine }
-                    NumberAnimation { to: 4; duration: 300 + index * 60; easing.type: Easing.InOutSine }
+                    NumberAnimation { to: peak; duration: 240 + index * 55; easing.type: Easing.InOutSine }
+                    NumberAnimation { to: 4; duration: 280 + (4 - index) * 50; easing.type: Easing.InOutSine }
                 }
             }
+        }
+    }
+
+    // Cincin progres (volume / kecerahan / baterai)
+    component Ring: Canvas {
+        id: ring
+        property int size: 22
+        property real value: 0
+        width: size
+        height: size
+        onValueChanged: requestPaint()
+        onVisibleChanged: if (visible) requestPaint()
+        onPaint: {
+            const ctx = getContext("2d");
+            const r = size / 2 - 2.5;
+            ctx.reset();
+            ctx.lineWidth = 3;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = IslandStyle.faint;
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, r, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.strokeStyle = IslandStyle.fg;
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.001, value));
+            ctx.stroke();
         }
     }
 
     // Tombol media
     component Control: Text {
         property string icon: ""
-        property bool big: false
         signal activated()
         text: icon
-        color: enabled ? Theme.text : Theme.muted
+        color: enabled ? IslandStyle.fg : IslandStyle.faint
         font.family: Theme.font
-        font.pixelSize: big ? 24 : 18
+        font.pixelSize: 26
         MouseArea {
             anchors.fill: parent
-            anchors.margins: -6
+            anchors.margins: -8
             cursorShape: Qt.PointingHandCursor
             onClicked: parent.activated()
         }
