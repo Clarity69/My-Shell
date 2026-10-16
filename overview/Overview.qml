@@ -147,7 +147,7 @@ Scope {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: "klik: fokus  ·  seret: pindah workspace  ·  klik tengah: tutup  ·  esc"
+                        text: "click: focus · drag: move to workspace · middle click: close · esc"
                         color: Theme.muted
                         font.family: Theme.font
                         font.pixelSize: 10

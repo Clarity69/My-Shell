@@ -1,4 +1,4 @@
-// Daya: baterai, mode daya (powerprofilesctl), aksi sesi.
+// Power: battery, power profile (powerprofilesctl), session actions.
 
 import QtQuick
 import QtQuick.Layouts
@@ -19,7 +19,7 @@ Page {
 
     PageHeader { kicker: "04 · system"; title: "Power" }
 
-    // ── Baterai ──────────────────────────────────────────────────────
+    // ── Battery ───────────────────────────────────────────────────
     SectionLabel { visible: Battery.available; text: "battery" }
 
     RowLayout {
@@ -49,7 +49,7 @@ Page {
         Item { Layout.fillWidth: true }
     }
 
-    // Bar level baterai
+    // Battery level bar
     Rectangle {
         visible: Battery.available
         Layout.fillWidth: true
@@ -65,12 +65,12 @@ Page {
         }
     }
 
-    // ── Mode daya ────────────────────────────────────────────────────
+    // ── Power profile ─────────────────────────────────────────────────
     SectionLabel { Layout.topMargin: 6; text: "power profile" }
 
     Hint {
         visible: !PowerProfile.available
-        text: "powerprofilesctl tidak ditemukan. Pasang power-profiles-daemon (atau tuned-ppd)."
+        text: "powerprofilesctl not found. Install power-profiles-daemon (or tuned-ppd)."
     }
 
     ColumnLayout {
@@ -92,7 +92,7 @@ Page {
         }
     }
 
-    // ── Sesi ─────────────────────────────────────────────────────────
+    // ── Session ──────────────────────────────────────────────────────
     SectionLabel { Layout.topMargin: 6; text: "session" }
 
     PowerMenu {
@@ -100,7 +100,7 @@ Page {
         onActionTriggered: root.actionTriggered()
     }
 
-    // Konfirmasi dibatalkan saat pindah halaman atau window ditutup (Esc)
+    // Confirmation is cancelled when switching pages or closing the window (Esc)
     onActiveChanged: if (!active) menu.cancel()
 
     InfoRow { key: "host";   value: SystemInfo.user + "@" + SystemInfo.host }

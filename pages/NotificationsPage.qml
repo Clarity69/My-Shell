@@ -1,4 +1,4 @@
-// Pusat notifikasi: semua notifikasi sesi ini, dikelompokkan per aplikasi.
+// Notification center: every notification this session, grouped by app.
 
 import QtQuick
 import QtQuick.Layouts
@@ -10,7 +10,7 @@ import qs.notifications
 Page {
     id: root
 
-    pollInterval: 30000        // hanya untuk menyegarkan label "5m", "1h"
+    pollInterval: 30000        // only to refresh the "5m", "1h" labels
     property int tick: 0
     onPoll: tick++
 
@@ -19,7 +19,7 @@ Page {
     SettingRow {
         icon: Notifications.dnd ? Icons.bellOff : Icons.bell
         title: "Do not disturb"
-        sub: Notifications.dnd ? "Popup disembunyikan, kecuali critical" : "Popup tampil"
+        sub: Notifications.dnd ? "Popups hidden, except critical" : "Popups shown"
         Switch { checked: Notifications.dnd; onToggled: Notifications.toggle() }
     }
 
@@ -35,7 +35,7 @@ Page {
 
     Hint {
         visible: Notifications.count === 0
-        text: "Belum ada notifikasi. Coba: notify-send \"Halo\" \"Tes notifikasi\""
+        text: "No notifications yet. Try: notify-send \"Hello\" \"Test notification\""
     }
 
     Repeater {

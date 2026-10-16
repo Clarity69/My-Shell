@@ -22,18 +22,17 @@ PanelWindow {
     id: root
 
     readonly property bool card: WidgetSettings.clockCard
-    readonly property var dayNames: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
-    readonly property var monthNames: ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
-                                       "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+    readonly property var dayNames: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    readonly property var monthNames: ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"]
 
     readonly property date now: clock.date
     readonly property string greeting: {
         const h = now.getHours();
-        if (h < 4)  return "selamat malam";
-        if (h < 11) return "selamat pagi";
-        if (h < 15) return "selamat siang";
-        if (h < 18) return "selamat sore";
-        return "selamat malam";
+        if (h < 5) return "good night";
+        if (h < 12) return "good morning";
+        if (h < 18) return "good afternoon";
+        return "good evening";
     }
 
     SystemClock {

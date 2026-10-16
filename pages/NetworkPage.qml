@@ -9,12 +9,12 @@ import qs.services
 Page {
     id: root
 
-    property string expanded: ""     // SSID yang sedang dibuka panel aksinya
+    property string expanded: ""     // SSID whose action panel is open
 
     onOpened: { Network.refresh(); Network.scan(false); }
     onPoll: Network.refresh()
 
-    // Scan ulang berkala selama halaman terbuka
+    // Rescan periodically while the page is open
     Timer {
         interval: 15000
         repeat: true
@@ -76,7 +76,7 @@ Page {
 
     Hint {
         visible: Network.enabled && Network.networks.length === 0
-        text: Network.scanning ? "Mencari jaringan…" : "Tidak ada jaringan ditemukan."
+        text: Network.scanning ? "Scanning…" : "No networks found."
     }
 
     ColumnLayout {
@@ -102,7 +102,7 @@ Page {
                 busy: Network.connecting === modelData.ssid
                 onClicked: root.expanded = open ? "" : modelData.ssid
 
-                // Panel aksi saat baris dibuka
+                // Action panel when a row is expanded
                 RowLayout {
                     visible: row.open
                     Layout.fillWidth: true

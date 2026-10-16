@@ -1,4 +1,4 @@
-// Layar: kecerahan (brightnessctl), night light (hyprsunset), info monitor.
+// Display: brightness (brightnessctl), night light (hyprsunset), monitor info.
 
 import QtQuick
 import QtQuick.Layouts
@@ -15,7 +15,7 @@ Page {
 
     PageHeader { kicker: "02 · devices"; title: "Display" }
 
-    // ── Kecerahan ────────────────────────────────────────────────────
+    // ── Brightness ─────────────────────────────────────────────────
     SectionLabel { text: "brightness" }
 
     SliderRow {
@@ -28,7 +28,7 @@ Page {
 
     Hint {
         visible: !Brightness.available
-        text: "Tidak ada backlight terdeteksi (brightnessctl tidak terpasang atau monitor eksternal)."
+        text: "No backlight detected (brightnessctl not installed, or an external monitor)."
     }
 
     // ── Night light ──────────────────────────────────────────────────
@@ -37,8 +37,8 @@ Page {
     SettingRow {
         icon: Icons.night
         title: "Night light"
-        sub: !NightLight.available ? "hyprsunset tidak terpasang"
-           : NightLight.active ? "Aktif · " + NightLight.temperature + "K" : "Off"
+        sub: !NightLight.available ? "hyprsunset not installed"
+           : NightLight.active ? "On · " + NightLight.temperature + "K" : "Off"
 
         Switch {
             checked: NightLight.active
@@ -58,7 +58,7 @@ Page {
         onCommitted: v => NightLight.setTemperature(v)
     }
 
-    Hint { text: "Makin kecil makin hangat. Suhu diterapkan saat slider dilepas." }
+    Hint { text: "Lower is warmer. Applied when you release the slider." }
 
     // ── Monitor ──────────────────────────────────────────────────────
     SectionLabel { Layout.topMargin: 6; text: "monitor" }

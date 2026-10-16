@@ -1,4 +1,4 @@
-// Profil: hostname besar, telemetri live, quick settings, info sistem.
+// Profile: big hostname, live telemetry, quick settings, system info.
 
 import QtQuick
 import QtQuick.Layouts
@@ -28,7 +28,7 @@ Page {
     readonly property var down: SystemStats.formatRate(SystemStats.rxRate)
     readonly property var up: SystemStats.formatRate(SystemStats.txRate)
 
-    // ── Identitas ────────────────────────────────────────────────────
+    // ── Identity ─────────────────────────────────────────────────
     ColumnLayout {
         Layout.fillWidth: true
         spacing: 2
@@ -64,7 +64,7 @@ Page {
         }
     }
 
-    // ── Telemetri ────────────────────────────────────────────────────
+    // ── Telemetry ─────────────────────────────────────────────────
     SectionLabel { Layout.topMargin: 6; text: "live telemetry" }
 
     GridLayout {
@@ -102,7 +102,7 @@ Page {
         }
     }
 
-    // Riwayat CPU sebagai batang tipis
+    // CPU history as thin bars
     Item {
         Layout.fillWidth: true
         implicitHeight: 28
@@ -177,13 +177,13 @@ Page {
             icon: Notifications.dnd ? Icons.bellOff : Icons.bell
             label: "Do not disturb"
             sublabel: (Notifications.dnd ? "On" : "Off")
-                      + (Notifications.count > 0 ? "  ·  " + Notifications.count + " baru" : "")
+                      + (Notifications.count > 0 ? "  ·  " + Notifications.count + " new" : "")
             active: Notifications.dnd
             onClicked: Notifications.toggle()
         }
     }
 
-    // ── Sistem ───────────────────────────────────────────────────────
+    // ── System ────────────────────────────────────────────────────
     SectionLabel { Layout.topMargin: 6; text: "system" }
 
     InfoRow {

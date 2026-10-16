@@ -19,9 +19,9 @@ PopupWindow {
     property int year: today.getFullYear()
     property int month: today.getMonth()       // 0..11
 
-    readonly property var dayNames: ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"]
-    readonly property var monthNames: ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
-                                       "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+    readonly property var dayNames: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    readonly property var monthNames: ["January", "February", "March", "April", "May", "June",
+                                       "July", "August", "September", "October", "November", "December"]
 
     // 42 sel (6 minggu): { day, current (bulan ini), today }
     readonly property var cells: {
@@ -61,7 +61,7 @@ PopupWindow {
 
     anchor.window: barWindow
     readonly property bool showWeather: Config.weatherEnabled && Weather.available
-    readonly property var shortDays: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"]   // getDay(): Minggu = 0
+    readonly property var shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]   // getDay(): Sunday = 0
 
     implicitWidth: 272
     implicitHeight: body.implicitHeight + 24
@@ -127,7 +127,7 @@ PopupWindow {
                                 font.pixelSize: Theme.fontSize - 1
                             }
                             Text {
-                                text: Weather.loading ? "memperbarui…" : Weather.city
+                                text: Weather.loading ? "updating…" : Weather.city
                                 color: Theme.muted
                                 font.family: Theme.font
                                 font.pixelSize: 10
@@ -138,8 +138,8 @@ PopupWindow {
                     }
 
                     Text {
-                        text: "terasa " + Math.round(Weather.feels) + "°   ·   "
-                              + Weather.humidity + "%   ·   " + Math.round(Weather.wind) + " km/j"
+                        text: "feels " + Math.round(Weather.feels) + "°   ·   "
+                              + Weather.humidity + "%   ·   " + Math.round(Weather.wind) + " km/h"
                         color: Theme.subtext
                         font.family: Theme.font
                         font.pixelSize: 10
@@ -265,7 +265,7 @@ PopupWindow {
 
                         Text {
                             Layout.alignment: Qt.AlignHCenter
-                            text: index === 0 ? "Hari ini" : popup.shortDays[modelData.date.getDay()]
+                            text: index === 0 ? "Today" : popup.shortDays[modelData.date.getDay()]
                             color: index === 0 ? Theme.text : Theme.muted
                             font.family: Theme.font
                             font.pixelSize: 10

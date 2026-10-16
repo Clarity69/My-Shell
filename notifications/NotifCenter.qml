@@ -97,7 +97,7 @@ PanelWindow {
                         font.letterSpacing: 1.5
                     }
                     Text {
-                        text: Notifications.count > 0 ? Notifications.count + " baru" : "Semua beres"
+                        text: Notifications.count > 0 ? Notifications.count + " New" : "All done"
                         color: Theme.text
                         font.family: Theme.serif
                         font.pixelSize: 22
@@ -114,7 +114,7 @@ PanelWindow {
             SettingRow {
                 icon: Notifications.dnd ? Icons.bellOff : Icons.bell
                 title: "Do not disturb"
-                sub: Notifications.dnd ? "Popup disembunyikan" : "Popup tampil"
+                sub: Notifications.dnd ? "Popup Hidden" : "Popup Show"
                 Switch { checked: Notifications.dnd; onToggled: Notifications.toggle() }
             }
 
@@ -145,7 +145,7 @@ PanelWindow {
                     Layout.topMargin: 24
                     Layout.bottomMargin: 24
                     horizontalAlignment: Text.AlignHCenter
-                    text: "Tidak ada notifikasi"
+                    text: "All clear"
                     color: Theme.muted
                     font.family: Theme.font
                     font.pixelSize: Theme.fontSize - 1

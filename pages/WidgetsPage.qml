@@ -1,4 +1,4 @@
-// Desktop widget: tampil/sembunyi, posisi, monitor, gaya. Tersimpan otomatis.
+// Desktop widgets: show/hide, position, monitor, style. Saved automatically.
 
 import QtQuick
 import QtQuick.Layouts
@@ -21,7 +21,7 @@ Page {
 
     PageHeader { kicker: "03 · look"; title: "Widgets" }
 
-    Hint { text: "Widget menempel di atas wallpaper dan di bawah semua window. Pindah ke workspace kosong untuk melihatnya." }
+    Hint { text: "Widgets sit above the wallpaper and below all windows. Switch to an empty workspace to see them." }
 
     // ── GitHub ───────────────────────────────────────────────────────
     SectionLabel { Layout.topMargin: 6; text: "github contributions" }
@@ -29,7 +29,7 @@ Page {
     SettingRow {
         title: "Show widget"
         sub: GitHub.user !== "" ? "@" + GitHub.user + "  ·  " + GitHub.total + " contributions"
-                                : "Belum ada data"
+                                : "No data yet"
         Switch {
             checked: WidgetSettings.githubShown
             onToggled: WidgetSettings.githubShown = !WidgetSettings.githubShown
@@ -42,7 +42,7 @@ Page {
         enabled: WidgetSettings.githubShown
         opacity: enabled ? 1 : 0.45
 
-        // Posisi
+        // Position
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 6
@@ -109,7 +109,7 @@ Page {
             }
         }
 
-        // Ukuran & gaya
+        // Size & style
         ValueSlider {
             label: "cell size"
             from: 7; to: 16; suffix: "px"
@@ -119,7 +119,7 @@ Page {
 
         SettingRow {
             title: "Card background"
-            sub: "Kartu latar di belakang grafik"
+            sub: "Background card behind the graph"
             Switch {
                 checked: WidgetSettings.githubCard
                 onToggled: WidgetSettings.githubCard = !WidgetSettings.githubCard
@@ -157,12 +157,12 @@ Page {
         }
     }
 
-    // ── Jam desktop ──────────────────────────────────────────────────
+    // ── Desktop clock ───────────────────────────────────────────────
     SectionLabel { Layout.topMargin: 18; text: "desktop clock" }
 
     SettingRow {
         title: "Show widget"
-        sub: "Jam, tanggal, cuaca, dan statistik sistem"
+        sub: "Time, date, weather, and system stats"
         Switch {
             checked: WidgetSettings.clockShown
             onToggled: WidgetSettings.clockShown = !WidgetSettings.clockShown
@@ -249,7 +249,7 @@ Page {
 
         SettingRow {
             title: "Seconds"
-            sub: "Detik kecil di samping jam"
+            sub: "Small seconds next to the time"
             Switch {
                 checked: WidgetSettings.clockSeconds
                 onToggled: WidgetSettings.clockSeconds = !WidgetSettings.clockSeconds
@@ -258,7 +258,7 @@ Page {
 
         SettingRow {
             title: "System stats"
-            sub: "CPU, RAM, suhu, dan uptime di bawah jam"
+            sub: "CPU, RAM, temperature, and uptime under the clock"
             Switch {
                 checked: WidgetSettings.clockStats
                 onToggled: WidgetSettings.clockStats = !WidgetSettings.clockStats
@@ -267,7 +267,7 @@ Page {
 
         SettingRow {
             title: "Card background"
-            sub: "Mati = teks langsung di atas wallpaper (dengan bayangan)"
+            sub: "Off = text sits right on the wallpaper (with a shadow)"
             Switch {
                 checked: WidgetSettings.clockCard
                 onToggled: WidgetSettings.clockCard = !WidgetSettings.clockCard

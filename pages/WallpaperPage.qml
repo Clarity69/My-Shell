@@ -1,4 +1,4 @@
-// Wallpaper: grid thumbnail dari Config.wallpaperDir. Klik = panggil skrip wallpaper milikmu.
+// Wallpaper: thumbnail grid from Config.wallpaperDir. Click = run your wallpaper script.
 
 import QtQuick
 import QtQuick.Layouts
@@ -30,7 +30,7 @@ Page {
     }
     Hint {
         visible: Wallpaper.images.length === 0 && !Wallpaper.loading
-        text: "Tidak ada gambar di folder ini. Ubah wallpaperDir di config/Config.qml."
+        text: "No images in this folder. Change wallpaperDir in config/Config.qml."
     }
 
     RowLayout {
@@ -79,7 +79,7 @@ Page {
                     Behavior on opacity { NumberAnimation { duration: 150 } }
                 }
 
-                // Garis tepi: tebal = wallpaper aktif
+                // Border: thick = current wallpaper
                 Rectangle {
                     anchors.fill: parent
                     radius: parent.radius

@@ -46,18 +46,18 @@ Singleton {
     }
 
     function describe(c) {
-        if (c === 0) return "Cerah";
-        if (c === 1) return "Cerah berawan";
-        if (c === 2) return "Berawan";
-        if (c === 3) return "Mendung";
-        if (c === 45 || c === 48) return "Berkabut";
-        if (c >= 51 && c <= 57) return "Gerimis";
-        if (c === 65) return "Hujan lebat";
-        if (c >= 61 && c <= 67) return "Hujan";
-        if (c >= 71 && c <= 77) return "Salju";
-        if (c >= 80 && c <= 82) return "Hujan lokal";
-        if (c === 85 || c === 86) return "Hujan salju";
-        if (c >= 95) return "Badai petir";
+        if (c === 0) return "Clear";
+        if (c === 1) return "Mostly clear";
+        if (c === 2) return "Partly cloudy";
+        if (c === 3) return "Overcast";
+        if (c === 45 || c === 48) return "Fog";
+        if (c >= 51 && c <= 57) return "Drizzle";
+        if (c === 65) return "Heavy rain";
+        if (c >= 61 && c <= 67) return "Rain";
+        if (c >= 71 && c <= 77) return "Snow";
+        if (c >= 80 && c <= 82) return "Rain showers";
+        if (c === 85 || c === 86) return "Snow showers";
+        if (c >= 95) return "Thunderstorm";
         return "—";
     }
 

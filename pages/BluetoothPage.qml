@@ -1,4 +1,4 @@
-// Bluetooth: power + perangkat ter-pair (klik untuk connect/disconnect).
+// Bluetooth: power + paired devices (click to connect/disconnect).
 
 import QtQuick
 import QtQuick.Layouts
@@ -14,7 +14,7 @@ Page {
     SettingRow {
         icon: Bluetooth.powered ? Icons.bluetooth : Icons.bluetoothOff
         title: "Bluetooth"
-        sub: !Bluetooth.available ? "Tidak ada adapter"
+        sub: !Bluetooth.available ? "No adapter"
            : !Bluetooth.powered ? "Off"
            : Bluetooth.device !== "" ? "Connected to " + Bluetooth.device : "On"
 
@@ -29,7 +29,7 @@ Page {
 
     Hint {
         visible: Bluetooth.devices.length === 0
-        text: "Belum ada perangkat ter-pair. Pair dulu lewat bluetoothctl atau blueman, lalu perangkat muncul di sini."
+        text: "No paired devices yet. Pair one with bluetoothctl or blueman and it will show up here."
     }
 
     ColumnLayout {

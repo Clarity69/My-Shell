@@ -1,4 +1,4 @@
-// Suara (wpctl): volume & perangkat output, mikrofon & perangkat input.
+// Sound (wpctl): volume & output devices, microphone & input devices.
 
 import QtQuick
 import QtQuick.Layouts
@@ -55,7 +55,7 @@ Page {
 
     Hint {
         visible: !Audio.hasMic
-        text: "Tidak ada mikrofon terdeteksi."
+        text: "No microphone detected."
     }
 
     ColumnLayout {
@@ -75,5 +75,5 @@ Page {
         }
     }
 
-    Hint { text: "Klik ikon di kiri slider untuk mute. Klik perangkat untuk menjadikannya default." }
+    Hint { text: "Click the icon left of a slider to mute. Click a device to make it the default." }
 }

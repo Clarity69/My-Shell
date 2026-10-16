@@ -1,4 +1,4 @@
-// Tampilan: palet pywal, layout bar, opsi Hyprland (gaps, border, rounding, blur, animasi).
+// Appearance: pywal palette, bar layout, Hyprland options (gaps, border, rounding, blur, animations).
 
 import QtQuick
 import QtQuick.Layouts
@@ -12,12 +12,12 @@ Page {
 
     PageHeader { kicker: "03 · look"; title: "Appearance" }
 
-    // ── Palet ────────────────────────────────────────────────────────
+    // ── Palette ─────────────────────────────────────────────────────
     SectionLabel { text: "palette" }
 
     InfoRow {
         key: "source"
-        value: Theme.walActive ? "pywal  ·  ~/.cache/wal/colors.json" : "default (pywal tidak ditemukan)"
+        value: Theme.walActive ? "pywal  ·  ~/.cache/wal/colors.json" : "default (pywal not found)"
     }
 
     Flow {
@@ -38,7 +38,7 @@ Page {
         }
     }
 
-    Hint { text: "Warna window mengikuti pywal secara live. Ganti wallpaper di halaman Wallpaper untuk membuat palet baru." }
+    Hint { text: "Window colors follow pywal live. Change the wallpaper on the Wallpaper page to generate a new palette." }
 
     // ── Bar ──────────────────────────────────────────────────────────
     SectionLabel { Layout.topMargin: 6; text: "bar" }
@@ -72,7 +72,7 @@ Page {
         }
     }
 
-    Hint { text: "Layout dan modul diatur di bar/BarState.qml. Dari terminal/rofi: bar-layout." }
+    Hint { text: "Layouts and modules live in bar/BarState.qml. From a terminal or rofi: bar-layout." }
 
     // ── Hyprland ─────────────────────────────────────────────────────
     SectionLabel { Layout.topMargin: 6; text: "hyprland" }
@@ -80,7 +80,7 @@ Page {
     Hint {
         visible: !Hypr.ready
         warn: true
-        text: "Tidak bisa membaca opsi dari hyprctl."
+        text: "Couldn't read options from hyprctl."
     }
 
     GridLayout {
@@ -128,7 +128,7 @@ Page {
     }
 
     Hint {
-        text: "Diterapkan langsung dan disimpan ke ~/.config/hypr/quickshell.conf. " +
-              "Agar bertahan setelah login, tambahkan  source = ~/.config/hypr/quickshell.conf  di akhir hyprland.conf."
+        text: "Applied right away and saved to ~/.config/hypr/quickshell.conf. " +
+              "To keep them after login, add  source = ~/.config/hypr/quickshell.conf  at the end of hyprland.conf."
     }
 }

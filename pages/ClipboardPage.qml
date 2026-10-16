@@ -1,4 +1,4 @@
-// Riwayat clipboard (cliphist). Klik = salin lagi, ikon tong sampah = hapus.
+// Clipboard history (cliphist). Click = copy again, trash icon = delete.
 
 import QtQuick
 import QtQuick.Layouts
@@ -24,7 +24,7 @@ Page {
     Hint {
         visible: !Clipboard.available && !Clipboard.loading
         warn: true
-        text: "cliphist tidak ditemukan. Pasang cliphist + wl-clipboard dan tambahkan di hyprland.conf:\n" +
+        text: "cliphist not found. Install cliphist + wl-clipboard and add this to hyprland.conf:\n" +
               "exec-once = wl-paste --type text --watch cliphist store\n" +
               "exec-once = wl-paste --type image --watch cliphist store"
     }
@@ -37,7 +37,7 @@ Page {
         InputField {
             id: filter
             icon: Icons.search
-            placeholder: "Filter riwayat…"
+            placeholder: "Filter history…"
         }
         TextButton {
             text: "Clear all"
@@ -53,7 +53,7 @@ Page {
 
     Hint {
         visible: Clipboard.available && Clipboard.items.length === 0 && !Clipboard.loading
-        text: "Riwayat masih kosong. Copy sesuatu, lalu muncul di sini."
+        text: "History is empty. Copy something and it will show up here."
     }
 
     ColumnLayout {
@@ -88,7 +88,7 @@ Page {
                     anchors.rightMargin: 6
                     spacing: 12
 
-                    // Thumbnail gambar
+                    // Image thumbnail
                     Rectangle {
                         visible: row.modelData.image && row.modelData.thumb !== ""
                         Layout.preferredWidth: 104

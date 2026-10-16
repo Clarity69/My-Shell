@@ -1,4 +1,4 @@
-// Daftar keybind Hyprland (hyprctl binds -j) dengan filter.
+// Hyprland keybinds (hyprctl binds -j) with a filter.
 
 import QtQuick
 import QtQuick.Layouts
@@ -43,7 +43,7 @@ Page {
                 Layout.preferredHeight: 30
                 spacing: 12
 
-                // Tombol sebagai "keycap"
+                // Keys drawn as "keycaps"
                 Row {
                     Layout.preferredWidth: 200
                     spacing: 4
