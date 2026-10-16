@@ -30,8 +30,7 @@ Item {
         network: networkC, bluetooth: bluetoothC,
         volume: volumeC, mic: micC, brightness: brightnessC, battery: batteryC,
         cpu: cpuC, memory: memoryC, profile: profileC,
-        notification: notificationC, tray: trayC, clipboard: clipboardC, overview: overviewC,
-        weather: weatherC
+        notification: notificationC, tray: trayC, clipboard: clipboardC, overview: overviewC
     })
 
     // Modul yang datanya tidak tersedia disembunyikan (mis. baterai di PC desktop)
@@ -40,8 +39,7 @@ Item {
         mic: Audio.hasMic,
         brightness: Brightness.available,
         battery: Battery.available,
-        profile: PowerProfile.available,
-        weather: Config.weatherEnabled && Weather.available
+        profile: PowerProfile.available
     })[kind] ?? true
     implicitWidth: frame.implicitWidth
     implicitHeight: frame.implicitHeight
@@ -118,18 +116,6 @@ Item {
             format: "ddd dd MMM   hh:mm"
             labelColor: Theme.text
             onClicked: root.openPage("profile")
-        }
-    }
-
-    // Cuaca: hover / klik kanan = popup kalender + cuaca, klik kiri = refresh
-    Component {
-        id: weatherC
-        ClockItem {
-            barWindow: root.window
-            icon: Weather.icon
-            label: Math.round(Weather.temp) + "°"
-            dimmed: Weather.loading
-            onClicked: Weather.refresh()
         }
     }
 
@@ -292,9 +278,19 @@ Item {
 
     Component {
         id: trayC
-        Tray { window: root.window }
-    }
+        // Bungkus dengan padding supaya tray tidak menempel ke modul sebelah
+        Item {
+            visible: tray.visible
+            implicitWidth: tray.implicitWidth + 16 // 8px kiri + 8px kanan
+            implicitHeight: tray.implicitHeight
 
+            Tray {
+                id: tray
+                anchors.centerIn: parent
+                window: root.window
+            }
+        }
+    }
     Component {
         id: unknownC
         BarText { text: "?" + root.spec; color: Theme.danger }

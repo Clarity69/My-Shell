@@ -87,6 +87,12 @@ Singleton {
     readonly property string weatherScript: home + "/.config/quickshell/shell/bin/weather"
     readonly property string weatherCache: home + "/.cache/quickshell/weather.json"
 
+    // ── Dynamic island ───────────────────────────────────────────────
+    // Tampil di tengah bar untuk layout yang punya `island: true` (mis. layout "island")
+    readonly property bool islandEnabled: true
+    readonly property bool islandOsd: true            // volume & kecerahan muncul di island
+    readonly property bool islandNotifications: true  // notifikasi muncul di island, bukan popup
+
     // ── Workspace overview ───────────────────────────────────────────
     readonly property int overviewWorkspaces: 5      // 1..N selalu tampil walau kosong
     readonly property int overviewColumns: 5         // workspace per baris

@@ -12,6 +12,7 @@ import qs.config
 //            "islands" bar transparan, kiri/tengah/kanan jadi "pulau" sendiri
 //            "border"  transparan, tiap modul hanya bergaris tepi
 //   height, radius, margin { top, left, right }, flatTop (hanya sudut bawah membulat)
+//   island : true = tengah bar diisi dynamic island (island/Island.qml), `center` diabaikan
 //   left / center / right : daftar modul, lihat bar/Module.qml
 //     workspaces[:kanji|:roman] window clock date datetime launcher network bluetooth
 //     volume mic brightness battery cpu memory tray notification profile power control clipboard overview weather
@@ -22,6 +23,12 @@ Singleton {
     property string current: Config.barLayout
 
     readonly property var layouts: ({
+        "island": {
+            style: "islands", height: 32, radius: 16, margin: { top: 6, left: 10, right: 10 }, island: true,
+            left:   ["launcher", "workspaces:kanji", "window:app"],
+            center: [],
+            right:  ["tray", "network", "volume", "battery", "notification", "control"]
+        },
         "omarchy": {
             style: "solid", height: 30, radius: 0, margin: { top: 5, left: 10, right: 10 },
             left:   ["launcher", "workspaces", "window:app"],

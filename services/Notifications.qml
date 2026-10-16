@@ -23,6 +23,10 @@ Singleton {
 
     function toggleCenter() { centerOpen = !centerOpen; }
 
+    // Dynamic island (island/Island.qml) mengambil alih popup selama aktif
+    property bool islandHandles: false
+    signal arrived(var notification)
+
     // Saat panel dibuka, popup yang sedang tampil disingkirkan (sudah terlihat di panel)
     onCenterOpenChanged: if (centerOpen) popupModel.clear()
     property var times: ({})                      // id -> Date diterima
@@ -122,6 +126,9 @@ Singleton {
 
             const critical = n.urgency === NotificationUrgency.Critical;
             if ((root.dnd || root.centerOpen) && !critical) return;
+
+            root.arrived(n);
+            if (root.islandHandles && !critical) return;
 
             root.hidePopup(n.id);                  // notifikasi yang diganti (replaces-id)
             popupModel.insert(0, { nid: n.id });

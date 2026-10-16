@@ -95,6 +95,7 @@ Scope {
 
             Section {
                 anchors.centerIn: parent
+                visible: !(Config.islandEnabled && root.lay.island === true)
                 specs: root.lay.center
                 monitor: win.modelData
                 window: win

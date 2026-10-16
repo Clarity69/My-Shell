@@ -1,5 +1,4 @@
 //@ pragma UseQApplication
-//@ pragma UseQApplication
 // Entry point. Jalankan:  quickshell -p ~/.config/quickshell/shell
 // Toggle:                  quickshell -p ~/.config/quickshell/shell ipc call controlcenter toggle
 // Bar on/off:              quickshell -p ~/.config/quickshell/shell ipc call bar toggle
@@ -13,6 +12,7 @@ import qs.notifications
 import qs.overview
 import qs.services
 import qs.desktop
+import qs.island
 
 ShellRoot {
     ControlCenter {
@@ -28,6 +28,8 @@ ShellRoot {
     }
 
     Overview {}
+
+    Island {}
 
     GithubWidget {}
 
