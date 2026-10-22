@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
 import qs.config
 
 // Logic for the app launcher (launcher/Launcher.qml).
@@ -16,12 +17,27 @@ import qs.config
 //   > command      run a shell command
 //   ? query        web search
 //
+// Modes (Tab / Shift+Tab or click the tabs):
+//   apps     everything above
+//   run      type a command; recent commands are remembered
+//   files    search your home folder (fd if installed, else find), Enter opens it
+//   window   switch to an open window
+//
 // App launches are counted, so the apps you open most float to the top.
 Singleton {
     id: root
 
     property bool open: false
     function toggle() { open = !open; }
+    onOpenChanged: if (open) mode = "apps"
+
+    // ── Modes ────────────────────────────────────────────────────────
+    readonly property var modes: ["apps", "run", "files", "window"]
+    property string mode: "apps"
+    function cycleMode(d) {
+        const i = modes.indexOf(mode);
+        mode = modes[(i + d + modes.length) % modes.length];
+    }
 
     // ── Launch history (frecency) ────────────────────────────────────
     property var history: ({})           // appId -> { n: launches, t: last launch (ms) }
@@ -43,7 +59,51 @@ Singleton {
         saveProc.running = true;
     }
 
+    function rememberRun(cmd) {
+        const h = Object.assign({}, history);
+        h.__runs = [cmd].concat((h.__runs ?? []).filter(c => c !== cmd)).slice(0, 30);
+        history = h;
+        saveProc.command = ["sh", "-c", 'mkdir -p "$(dirname "$2")" && printf "%s\\n" "$1" > "$2"',
+                            "sh", JSON.stringify(h), Config.launcherHistory];
+        saveProc.running = true;
+    }
+
     Process { id: saveProc }
+
+    // ── File search (async) ──────────────────────────────────────────
+    property var files: []
+    property string fileQuery: ""
+
+    function findFiles(q) {
+        fileQuery = q.trim();
+        if (fileQuery.length < 2) { files = []; return; }
+        fileTimer.restart();
+    }
+
+    Timer {
+        id: fileTimer
+        interval: 180
+        onTriggered: {
+            if (fileProc.running) fileProc.running = false;
+            fileProc.command = ["sh", "-c",
+                'cd "$HOME" && if command -v fd >/dev/null; then fd -i -H --max-results 60 --exclude .git --exclude .cache -- "$1"; '
+                + 'else find . -maxdepth 5 -not -path "*/.*" -iname "*$1*" 2>/dev/null | head -n 60 | sed "s|^\\./||"; fi',
+                "sh", root.fileQuery];
+            fileProc.running = true;
+        }
+    }
+
+    Process {
+        id: fileProc
+        stdout: StdioCollector {
+            onStreamFinished: root.files = text.split("\n").filter(l => l !== "")
+        }
+    }
+
+    function iconFor(appId) {
+        const e = DesktopEntries.heuristicLookup ? DesktopEntries.heuristicLookup(appId) : DesktopEntries.byId(appId);
+        return Quickshell.iconPath(e?.icon ?? appId, true);
+    }
 
     FileView {
         path: Config.launcherHistory
@@ -137,6 +197,10 @@ Singleton {
         const text = raw.trim();
         const q = text.toLowerCase();
 
+        if (mode === "run") return runResults(text);
+        if (mode === "files") return fileResults();
+        if (mode === "window") return windowResults(q);
+
         // Prefix modes
         if (q.startsWith(":clip")) return clipResults(text.slice(5).trim().toLowerCase());
         if (q.startsWith(":wall")) return wallResults(text.slice(5).trim().toLowerCase());
@@ -197,6 +261,45 @@ Singleton {
         return out.slice(0, 40);
     }
 
+    function runResults(text) {
+        const q = text.toLowerCase();
+        const out = [];
+        if (text !== "")
+            out.push({ kind: "run", title: text, sub: "Run", glyph: String.fromCodePoint(0xF018D), hint: "run",
+                       run: { type: "shell", cmd: text } });
+        for (const c of (history.__runs ?? []))
+            if (c !== text && (q === "" || c.toLowerCase().includes(q)))
+                out.push({ kind: "run", title: c, sub: "Recent", glyph: String.fromCodePoint(0xF02DA), hint: "recent",
+                           run: { type: "shell", cmd: c } });
+        return out;
+    }
+
+    function fileResults() {
+        return files.map(f => {
+            const name = f.replace(/\/$/, "").split("/").pop();
+            const dir = f.slice(0, f.length - name.length).replace(/\/$/, "");
+            const isDir = f.endsWith("/");
+            return {
+                kind: "file", title: name,
+                sub: "~/" + dir,
+                glyph: isDir ? String.fromCodePoint(0xF024B) : String.fromCodePoint(0xF0214),
+                hint: isDir ? "folder" : "file",
+                run: { type: "url", url: "file://" + Config.home + "/" + f }
+            };
+        });
+    }
+
+    function windowResults(q) {
+        return ToplevelManager.toplevels.values
+            .filter(t => q === "" || (t.title + " " + t.appId).toLowerCase().includes(q))
+            .map(t => ({
+                kind: "window", title: t.title || t.appId,
+                sub: t.appId, icon: iconFor(t.appId),
+                glyph: String.fromCodePoint(0xF05B0), hint: "window",
+                run: { type: "window", toplevel: t }
+            }));
+    }
+
     function clipResults(q) {
         return Clipboard.items
             .filter(i => q === "" || (i.image ? "image " + i.meta : i.text).toLowerCase().includes(q))
@@ -244,7 +347,11 @@ Singleton {
             Quickshell.execDetached(x.cmd);
             break;
         case "shell":
+            rememberRun(x.cmd);
             Quickshell.execDetached(["sh", "-c", x.cmd]);
+            break;
+        case "window":
+            x.toplevel.activate();
             break;
         case "url":
             Quickshell.execDetached(["xdg-open", x.url]);
