@@ -106,4 +106,8 @@ Singleton {
     readonly property int overviewWorkspaces: 5      // 1..N selalu tampil walau kosong
     readonly property int overviewColumns: 5         // workspace per baris
     readonly property bool overviewLive: false       // true = preview bergerak (lebih berat)
+
+    readonly property bool launcherBuiltin: true
+    readonly property string launcherHistory: home + "/.cache/quickshell/launcher.json"
+    readonly property string launcherSearchUrl: "https://duckduckgo.com/?q="
 }

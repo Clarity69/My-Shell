@@ -13,6 +13,7 @@ import qs.overview
 import qs.services
 import qs.desktop
 import qs.island
+import qs.launcher
 
 ShellRoot {
     ControlCenter {
@@ -86,5 +87,18 @@ ShellRoot {
 
         // quickshell -p ~/.config/quickshell/shell ipc call controlcenter open network
         function open(page: string): void { controlCenter.openPage(page) }
+    }
+
+    LauncherWindow {}
+    Connections {
+        target: Launcher
+        function onPageRequested(name) { controlCenter.openPage(name) }
+    }
+
+    IpcHandler {
+        target: "launcher"
+        function toggle(): void { Launcher.toggle() }
+        function open(): void   { Launcher.open = true }
+        function close(): void  { Launcher.open = false }
     }
 }

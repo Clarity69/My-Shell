@@ -59,11 +59,11 @@ Singleton {
             center: ["workspaces"],
             right:  ["volume", "network", "battery", "power", "control"]
         },
-        "border-only": {
-            style: "border", height: 40, radius: 2, margin: { top: 0, left: 10, right: 10 },
-            left:   ["clock", "network"],
-            center: ["workspaces"],
-            right:  ["volume", "brightness", "battery", "tray", "control"]
+        "nest": {
+            style: "solid", height: 28, radius: 10, margin: { top: 6, left: 12, right: 12 },
+            left:   ["launcher", "workspaces:kanji"],
+            center: [],
+            right:  ["tray", "volume", "network", "battery", "notification", "control"]
         },
         "hyprnova": {
             style: "solid", height: 30, radius: 8, margin: { top: 3, left: 8, right: 8 },

@@ -122,7 +122,7 @@ Rectangle {
 
         Text {
             Layout.fillWidth: true
-            text: root.query !== "" && root.firstMatch() < 0 ? "tidak ditemukan" : "esc · tutup   ^f · cari"
+            text: root.query !== "" && root.firstMatch() < 0 ? "Not Found" : "esc · close   ^f · search"
             color: Theme.muted
             font.family: Theme.font
             font.pixelSize: 10
