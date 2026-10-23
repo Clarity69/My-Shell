@@ -138,7 +138,7 @@ Singleton {
         { name: "Network", keys: "wifi wi-fi ethernet lan internet" },
         { name: "Bluetooth", keys: "headset earbuds pair" },
         { name: "Sound", keys: "audio volume speaker mic microphone" },
-        { name: "Display", keys: "brightness night light screen monitor" },
+        { name: "Display", keys: "brightness night light screen monitor tv mirror extend projector hdmi vga" },
         { name: "Appearance", keys: "theme pywal gaps blur bar layout" },
         { name: "Wallpaper", keys: "background image" },
         { name: "Widgets", keys: "desktop github clock" },

@@ -548,6 +548,19 @@ Page {
             QuickToggle {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
+                Layout.columnSpan: 2
+                visible: Displays.connected
+                icon: Icons.monitor
+                label: "Mirror to TV"
+                sublabel: !Displays.connected ? "" : Displays.mirroring
+                          ? "On · " + Displays.external.name : "Off · extended to " + Displays.external.name
+                active: Displays.mirroring
+                busy: Displays.busy
+                onClicked: Displays.toggleMirror()
+            }
+            QuickToggle {
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
                 icon: Notifications.dnd ? Icons.bellOff : Icons.bell
                 label: "Do not disturb"
                 sublabel: (Notifications.dnd ? "On" : "Off")

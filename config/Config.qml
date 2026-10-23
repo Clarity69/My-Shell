@@ -110,4 +110,6 @@ Singleton {
     readonly property bool launcherBuiltin: true
     readonly property string launcherHistory: home + "/.cache/quickshell/launcher.json"
     readonly property string launcherSearchUrl: "https://duckduckgo.com/?q="
+
+    // readonly property string externalMode: "1920x1080@60"
 }
