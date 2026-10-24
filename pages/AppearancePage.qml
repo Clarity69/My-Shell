@@ -128,7 +128,7 @@ Page {
     }
 
     Hint {
-        text: "Applied right away and saved to ~/.config/hypr/quickshell.conf. " +
-              "To keep them after login, add  source = ~/.config/hypr/quickshell.conf  at the end of hyprland.conf."
+        text: "Applied right away and saved to ~/.config/hypr/quickshell.lua. " +
+              "Loaded at login by load(\"quickshell\") at the end of hyprland.lua."
     }
 }

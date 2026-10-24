@@ -60,8 +60,8 @@ Singleton {
 
     // ── Hyprland ─────────────────────────────────────────────────────
     // Halaman Appearance menulis nilai ke file ini. Agar permanen, tambahkan
-    // `source = ~/.config/hypr/quickshell.conf` di AKHIR hyprland.conf.
-    readonly property string hyprOverrides: home + "/.config/hypr/quickshell.conf"
+    // `load("quickshell")` di AKHIR hyprland.lua.
+   readonly property string hyprOverrides: home + "/.config/hypr/quickshell.lua"
 
     // ── Lain-lain ────────────────────────────────────────────────────
     readonly property int nightLightDefault: 4500

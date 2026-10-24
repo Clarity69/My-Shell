@@ -11,7 +11,7 @@ import qs.config
 //   mode "mirror"  TV shows the same picture as the laptop
 //   mode "off"     laptop only, the TV is switched off
 // `resolution` is the mode used for the TV ("preferred" or e.g. "1920x1080@60").
-// Changes are runtime only (hyprctl keyword), so unplugging or restarting Hyprland
+// Changes are runtime only (hyprctl eval), so unplugging or restarting Hyprland
 // falls back to whatever monitors.conf says.
 Singleton {
     id: root
@@ -38,14 +38,22 @@ Singleton {
         if (!listProc.running) listProc.running = true;
     }
 
+    function monitorLua(spec) {
+        const parts = Object.keys(spec).map(k =>
+            k + " = " + (typeof spec[k] === "string" ? JSON.stringify(spec[k]) : spec[k]));
+        return "hl.monitor({ " + parts.join(", ") + " })";
+    }
+
     function setMode(m) {
         if (!connected || !internal || busy) return;
         const ext = external.name;
-        const rule = m === "off" ? ext + ",disable"
-            : m === "mirror" ? ext + "," + resolution + ",auto,1,mirror," + internal.name
-            : ext + "," + resolution + ",auto,1";
+        const spec = m === "off"
+            ? { output: ext, disabled: true }
+            : m === "mirror"
+                ? { output: ext, mode: resolution, position: "auto", scale: 1, mirror: internal.name }
+                : { output: ext, mode: resolution, position: "auto", scale: 1 };
         busy = true;
-        setProc.command = ["hyprctl", "keyword", "monitor", rule];
+        setProc.command = ["hyprctl", "eval", monitorLua(spec)];
         setProc.running = true;
     }
 

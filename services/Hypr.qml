@@ -5,9 +5,9 @@ import Quickshell
 import Quickshell.Io
 import qs.config
 
-// Opsi tampilan Hyprland. Diterapkan langsung lewat `hyprctl keyword`,
-// lalu disimpan ke Config.hyprOverrides agar bertahan setelah reload/login
-// (asalkan file itu di-`source` dari hyprland.conf).
+// Opsi tampilan Hyprland. Diterapkan langsung lewat `hyprctl eval` (config Lua),
+// lalu disimpan ke Config.hyprOverrides (quickshell.lua) agar bertahan setelah
+// reload/login. File itu dimuat lewat load("quickshell") di akhir hyprland.lua.
 Singleton {
     id: root
 
@@ -32,14 +32,29 @@ Singleton {
         if (!readProc.running) readProc.running = true;
     }
 
+    // Nilai JS -> literal Lua
+    function luaValue(value) {
+        if (typeof value === "boolean") return value ? "true" : "false";
+        return String(value);
+    }
+
+    // "decoration:blur:enabled", true -> hl.config({ decoration = { blur = { enabled = true } } })
+    function luaSet(path, value) {
+        const parts = path.split(":");
+        let s = luaValue(value);
+        for (let i = parts.length - 1; i >= 0; i--)
+            s = "{ " + parts[i] + " = " + s + " }";
+        return "hl.config(" + s + ")";
+    }
+
     function set(key, value) {
         root[key] = value;
-        const v = typeof value === "boolean" ? (value ? "1" : "0") : String(value);
-        Quickshell.execDetached(["hyprctl", "keyword", options[key], v]);
+        Quickshell.execDetached(["hyprctl", "eval", luaSet(options[key], value)]);
         saveTimer.restart();
     }
 
     function readValue(j) {
+        if (j.bool !== undefined) return j.bool ? 1 : 0;
         if (j.int !== undefined) return j.int;
         if (j.float !== undefined) return Math.round(j.float);
         return parseInt(String(j.custom ?? "0").trim().split(/\s+/)[0]) || 0;
@@ -74,21 +89,19 @@ Singleton {
         interval: 600
         onTriggered: {
             const content = [
-                "# Ditulis otomatis oleh Quickshell Control Center.",
-                "general {",
-                "    gaps_in = " + root.gapsIn,
-                "    gaps_out = " + root.gapsOut,
-                "    border_size = " + root.borderSize,
-                "}",
-                "decoration {",
-                "    rounding = " + root.rounding,
-                "    blur {",
-                "        enabled = " + root.blur,
-                "    }",
-                "}",
-                "animations {",
-                "    enabled = " + root.animations,
-                "}"
+                "-- Ditulis otomatis oleh Quickshell Control Center.",
+                "hl.config({",
+                "    general = {",
+                "        gaps_in = " + root.gapsIn + ",",
+                "        gaps_out = " + root.gapsOut + ",",
+                "        border_size = " + root.borderSize + ",",
+                "    },",
+                "    decoration = {",
+                "        rounding = " + root.rounding + ",",
+                "        blur = { enabled = " + root.luaValue(root.blur) + " },",
+                "    },",
+                "    animations = { enabled = " + root.luaValue(root.animations) + " },",
+                "})"
             ].join("\n");
             writeProc.command = ["sh", "-c",
                 'mkdir -p "$(dirname "$2")" && printf "%s\\n" "$1" > "$2"', "sh", content, Config.hyprOverrides];
