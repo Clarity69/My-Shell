@@ -76,12 +76,14 @@ RowLayout {
                 // kiri = pindah workspace, kanan = workspace overview
                 onClicked: mouse => mouse.button === Qt.RightButton
                                     ? OverviewState.toggle()
-                                    : Hyprland.dispatch("workspace " + ws.modelData)
+                                    : Hyprland.dispatch("hl.dsp.focus({ workspace = " + ws.modelData + " })")
             }
         }
     }
 
     WheelHandler {
-        onWheel: event => Hyprland.dispatch(event.angleDelta.y > 0 ? "workspace m-1" : "workspace m+1")
+        onWheel: event => Hyprland.dispatch(event.angleDelta.y > 0
+    ? "hl.dsp.focus({ workspace = 'm-1' })"
+    : "hl.dsp.focus({ workspace = 'm+1' })")
     }
 }
