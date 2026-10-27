@@ -61,6 +61,44 @@ Page {
 
     Hint { text: "Lower is warmer. Applied when you release the slider." }
 
+    // Schedule
+    SettingRow {
+        icon: Icons.night
+        title: "Schedule"
+        sub: NightLight.scheduled
+             ? "On at " + NightLight.onTime + "  ·  off at " + NightLight.offTime
+             : "Turn on and off automatically"
+
+        Switch {
+            checked: NightLight.scheduled
+            enabled: NightLight.available
+            onToggled: NightLight.setScheduled(!NightLight.scheduled)
+        }
+    }
+
+    RowLayout {
+        Layout.fillWidth: true
+        spacing: Theme.gap
+        visible: NightLight.scheduled
+        enabled: NightLight.available
+
+        TimeStepper {
+            label: "turn on"
+            minutes: NightLight.onMinutes
+            onPicked: m => NightLight.setOn(m)
+        }
+        TimeStepper {
+            label: "turn off"
+            minutes: NightLight.offMinutes
+            onPicked: m => NightLight.setOff(m)
+        }
+    }
+
+    Hint {
+        visible: NightLight.scheduled
+        text: "Click ‹ › or scroll to change by 15 minutes. You can still toggle night light by hand; the schedule takes over again at the next switch time."
+    }
+
     // ── External display ─────────────────────────────────────────────
     SectionLabel { Layout.topMargin: 6; text: "external display" }
 
@@ -149,4 +187,64 @@ Page {
 
     InfoRow { key: "resolution"; value: SystemInfo.resolution }
     InfoRow { key: "compositor"; value: SystemInfo.compositor }
+
+    // Time picker card: ‹ HH:MM ›, scroll or click to move by 15 minutes
+    component TimeStepper: Rectangle {
+        id: stepper
+        property string label: ""
+        property int minutes: 0
+        signal picked(int m)
+
+        function step(d) { stepper.picked(((minutes + d * 15) % 1440 + 1440) % 1440); }
+
+        Layout.fillWidth: true
+        Layout.preferredWidth: 1
+        implicitHeight: 76
+        radius: Theme.radius
+        color: Theme.surface
+        border.width: 1
+        border.color: Theme.border
+
+        Text {
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.margins: 10
+            text: stepper.label.toUpperCase()
+            color: Theme.muted
+            font.family: Theme.font
+            font.pixelSize: 9
+            font.letterSpacing: 1.5
+        }
+
+        RowLayout {
+            anchors.centerIn: parent
+            anchors.verticalCenterOffset: 6
+            spacing: 14
+
+            Text {
+                text: "‹"
+                color: Theme.subtext
+                font.family: Theme.font
+                font.pixelSize: 22
+                MouseArea { anchors.fill: parent; anchors.margins: -8; cursorShape: Qt.PointingHandCursor; onClicked: stepper.step(-1) }
+            }
+            Text {
+                text: String(Math.floor(stepper.minutes / 60)).padStart(2, "0") + ":" + String(stepper.minutes % 60).padStart(2, "0")
+                color: Theme.text
+                font.family: Theme.serif
+                font.pixelSize: 28
+            }
+            Text {
+                text: "›"
+                color: Theme.subtext
+                font.family: Theme.font
+                font.pixelSize: 22
+                MouseArea { anchors.fill: parent; anchors.margins: -8; cursorShape: Qt.PointingHandCursor; onClicked: stepper.step(1) }
+            }
+        }
+
+        WheelHandler {
+            onWheel: event => stepper.step(event.angleDelta.y > 0 ? 1 : -1)
+        }
+    }
 }

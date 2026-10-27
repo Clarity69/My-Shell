@@ -15,7 +15,7 @@ import qs.config
 //   island : true = tengah bar diisi dynamic island (island/Island.qml), `center` diabaikan
 //   left / center / right : daftar modul, lihat bar/Module.qml
 //     workspaces[:kanji|:roman] window clock date datetime launcher network bluetooth
-//     volume mic brightness battery cpu memory tray notification profile power control clipboard overview weather
+//     volume mic brightness battery cpu memory tray notification profile power control clipboard overview weather mouse
 Singleton {
     id: root
 
@@ -33,7 +33,7 @@ Singleton {
             style: "solid", height: 30, radius: 0, margin: { top: 5, left: 10, right: 10 },
              left: ["tray", "workspaces", "window:app"],
             center: ["clock"],
-            right: ["network", "volume", "cpu", "memory", "battery", "control", "power", "notification"]
+            right: ["network", "volume", "cpu", "mouse", "battery", "control", "power", "notification"]
          },
         "minimal": {
             style: "solid", height: 30, radius: 0, margin: { top: 0, left: 0, right: 0 },

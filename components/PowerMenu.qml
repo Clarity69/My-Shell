@@ -19,7 +19,7 @@ ColumnLayout {
         { icon: Icons.suspend, label: "Suspend",   hint: "systemctl", danger: false, confirm: false,
           cmd: ["systemctl", "suspend"] },
         { icon: Icons.logout,  label: "Log out",   hint: "hyprctl",   danger: false, confirm: true,
-          cmd: ["hyprctl", "dispatch", "exit"] },
+          cmd: ["hyprctl", "dispatch", "hl.dsp.exit()"] },
         { icon: Icons.reboot,  label: "Restart",   hint: "systemctl", danger: true,  confirm: true,
           cmd: ["systemctl", "reboot"] },
         { icon: Icons.power,   label: "Shut down", hint: "systemctl", danger: true,  confirm: true,

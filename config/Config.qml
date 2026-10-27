@@ -112,4 +112,10 @@ Singleton {
     readonly property string launcherSearchUrl: "https://duckduckgo.com/?q="
 
     // readonly property string externalMode: "1920x1080@60"
+
+    // ── Mouse battery (2.4 GHz YJX-CHIP receiver, bin/mouse-battery) ──
+    readonly property bool mouseBattery: true
+    readonly property string mouseBatteryScript: home + "/.config/quickshell/shell/bin/mouse-battery"
+    readonly property int mouseBatteryInterval: 60       // seconds
+    readonly property int mouseLowBattery: 15            // percent, warns once below this
 }

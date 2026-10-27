@@ -30,11 +30,13 @@ Item {
         network: networkC, bluetooth: bluetoothC,
         volume: volumeC, mic: micC, brightness: brightnessC, battery: batteryC,
         cpu: cpuC, memory: memoryC, profile: profileC,
-        notification: notificationC, tray: trayC, clipboard: clipboardC, overview: overviewC
+        notification: notificationC, tray: trayC, clipboard: clipboardC, overview: overviewC,
+        mouse: mouseC
     })
 
     // Modul yang datanya tidak tersedia disembunyikan (mis. baterai di PC desktop)
     visible: ({
+        mouse: MouseBattery.available,
         bluetooth: Bluetooth.powered,
         mic: Audio.hasMic,
         brightness: Brightness.available,
@@ -116,6 +118,18 @@ Item {
             format: "ddd dd MMM   hh:mm"
             labelColor: Theme.text
             onClicked: root.openPage("profile")
+        }
+    }
+
+    // Mouse battery: click = read now, dimmed while the mouse sleeps
+    Component {
+        id: mouseC
+        BarItem {
+            icon: MouseBattery.charging ? Icons.charging : String.fromCodePoint(0xF037D)
+            label: MouseBattery.level + "%"
+            dimmed: MouseBattery.asleep
+            iconColor: MouseBattery.level <= Config.mouseLowBattery && !MouseBattery.charging ? Theme.danger : Theme.text
+            onClicked: MouseBattery.refresh()
         }
     }
 

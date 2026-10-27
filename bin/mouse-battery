@@ -1,0 +1,108 @@
+#!/usr/bin/env python3
+"""Battery level of 2.4 GHz mice on the 'YJX-CHIP' receiver (USB a8a5:2255).
+
+Protocol from HaloBattery (github.com/HeyOkay/HaloBattery, MIT, providers/mchose.py),
+confirmed there on the MCHOSE G7. Other mice built on the same chip (e.g. Pressplay)
+may speak it too:
+    write  output report  00 55 30 A5 0B 2E 01 01 01  (zero padded to 65 bytes)
+    read   input report   AA 30 .. .. .. .. .. .. <level> <charging>
+
+Usage:  mouse-battery            -> prints "<level> <charging 0|1>", exit 0
+        mouse-battery -v         -> also explains what it tried
+Exit 1 = receiver not found, 2 = no permission, 3 = no answer (mouse asleep / other protocol).
+Needs read/write access to the receiver's /dev/hidraw*: see the udev rule printed with -v.
+"""
+import os
+import select
+import sys
+import time
+
+VID, PID = 0xA8A5, 0x2255
+REQUEST = bytes([0x00, 0x55, 0x30, 0xA5, 0x0B, 0x2E, 0x01, 0x01, 0x01]).ljust(65, b"\x00")
+HEADER = b"\xaa\x30"
+VERBOSE = "-v" in sys.argv
+UDEV = ('SUBSYSTEM=="hidraw", ATTRS{idVendor}=="a8a5", ATTRS{idProduct}=="2255", '
+        'MODE="0660", TAG+="uaccess"')
+
+
+def log(*a):
+    if VERBOSE:
+        print(*a, file=sys.stderr)
+
+
+def nodes():
+    """hidraw nodes of the receiver, vendor collection 0xFF01 first."""
+    found = []
+    for name in sorted(os.listdir("/sys/class/hidraw")):
+        base = f"/sys/class/hidraw/{name}/device"
+        try:
+            uevent = open(f"{base}/uevent").read()
+        except OSError:
+            continue
+        if f"{VID:08X}:{PID:08X}" not in uevent.upper():
+            continue
+        try:
+            desc = open(f"{base}/report_descriptor", "rb").read()
+        except OSError:
+            desc = b""
+        # Usage Page (Vendor 0xFF01) is encoded as 06 01 FF
+        vendor = b"\x06\x01\xff" in desc
+        found.append((0 if vendor else 1, f"/dev/{name}", desc.hex(" ")[:60]))
+    found.sort()
+    return found
+
+
+def ask(path):
+    fd = os.open(path, os.O_RDWR | os.O_NONBLOCK)
+    try:
+        for attempt in range(3):
+            os.write(fd, REQUEST)
+            deadline = time.time() + 0.6
+            while time.time() < deadline:
+                r, _, _ = select.select([fd], [], [], 0.05)
+                if not r:
+                    continue
+                data = os.read(fd, 128)
+                log(f"  {path} <- {data[:16].hex(' ')}")
+                i = data.find(HEADER)
+                if i < 0 or len(data) < i + 10:
+                    continue
+                level, charging = data[i + 8], data[i + 9]
+                if 0 <= level <= 100:
+                    return level, 1 if charging else 0
+    finally:
+        os.close(fd)
+    return None
+
+
+def main():
+    found = nodes()
+    if not found:
+        log("receiver a8a5:2255 not found")
+        sys.exit(1)
+    denied = False
+    for _, path, desc in found:
+        log(f"trying {path}  (descriptor {desc} ...)")
+        try:
+            res = ask(path)
+        except PermissionError:
+            denied = True
+            log(f"  no permission on {path}")
+            continue
+        except OSError as e:
+            log(f"  {path}: {e}")
+            continue
+        if res:
+            print(res[0], res[1])
+            return
+    if denied:
+        log("\nAdd this udev rule, then unplug and replug the receiver:\n"
+            f"  echo '{UDEV}' | sudo tee /etc/udev/rules.d/70-mouse-battery.rules\n"
+            "  sudo udevadm control --reload")
+        sys.exit(2)
+    log("no answer: the mouse may be asleep (move it and retry) or use another protocol")
+    sys.exit(3)
+
+
+if __name__ == "__main__":
+    main()

@@ -65,6 +65,13 @@ Page {
         }
     }
 
+    InfoRow {
+        visible: MouseBattery.available
+        key: "mouse"
+        value: MouseBattery.level + "%" + (MouseBattery.charging ? "  ·  charging" : "")
+               + (MouseBattery.asleep ? "  ·  asleep" : "")
+    }
+
     // ── Power profile ─────────────────────────────────────────────────
     SectionLabel { Layout.topMargin: 6; text: "power profile" }
 

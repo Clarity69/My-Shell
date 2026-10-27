@@ -123,7 +123,7 @@ Item {
         id: launcherC
         BarItem {
             icon: Icons.arch
-            onClicked: Quickshell.execDetached(["sh", "-c", Config.launcherCommand])
+            onClicked: Config.launcherBuiltin ? Launcher.toggle() : Quickshell.execDetached(["sh", "-c", Config.launcherCommand])
         }
     }
 
